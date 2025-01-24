@@ -25,7 +25,7 @@ public class MoveHelper {
                 if (targetPiece == null) {
                     validMoves.add(new ChessMove(myPosition, newPosition, null));
                 } else {
-                    if (!targetPiece.getTeamColor().equas(teamColor)) {
+                    if (!targetPiece.getTeamColor().equals(teamColor)) {
                         validMoves.add(new ChessMove(myPosition, newPosition, null));
                     }
                     break;
