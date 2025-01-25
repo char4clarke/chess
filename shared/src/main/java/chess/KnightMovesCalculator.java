@@ -9,6 +9,7 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> validMoves = new ArrayList<>();
         int[][] knightJumps = {
+                // possible knight moves
                 {-2, -1}, {-2, 1}, {2, -1}, {2, 1},
                 {-1, -2}, {-1, 2}, {1, -2}, {1, 2}
         };
@@ -17,6 +18,7 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
             int newRow = myPosition.getRow() + jump[0];
             int newCol = myPosition.getColumn() + jump[1];
 
+            // checks if move is in bounds and valid (empty or occupied by an opponent piece) from MoveHelper class
             if (MoveHelper.isInBounds(newRow, newCol)) {
                 ChessPosition newPosition = new ChessPosition(newRow, newCol);
                 MoveHelper.handleTargetSquare(board, myPosition, newPosition, board.getPiece(myPosition).getTeamColor(), validMoves);

@@ -4,6 +4,7 @@ import java.util.Collection;
 
 public class RookMovesCalculator implements PieceMovesCalculator {
     private static final int[][] directions = {
+            // all possible directions for rook movement
             {0, 1}, {0, -1},
             {1, 0}, {-1, 0}
     };
