@@ -11,7 +11,7 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
 
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece bishop = board.getPiece(myPosition);
-        return MoveHelper.calculateDirectionalMoves(board, myPosition, directions, bishop.getTeamColor());
+        ChessPiece queen = board.getPiece(myPosition);
+        return MoveHelper.calculateDirectionalMoves(board, myPosition, directions, queen.getTeamColor());
     }
 }

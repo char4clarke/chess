@@ -10,7 +10,7 @@ public class RookMovesCalculator implements PieceMovesCalculator {
 
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece bishop = board.getPiece(myPosition);
-        return MoveHelper.calculateDirectionalMoves(board, myPosition, directions, bishop.getTeamColor());
+        ChessPiece rook = board.getPiece(myPosition);
+        return MoveHelper.calculateDirectionalMoves(board, myPosition, directions, rook.getTeamColor());
     }
 }
