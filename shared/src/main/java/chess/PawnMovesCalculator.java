@@ -15,7 +15,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
 
         ChessPosition forwardOne = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn());
         if (MoveHelper.isInBounds(forwardOne.getRow(), forwardOne.getColumn()) && board.getPiece(forwardOne) == null) {
-            validMoves.add(new ChessMove(myPosition, forwardOne, null));
+            addPromotionOrRegularMove(validMoves, myPosition, forwardOne, teamColor);
 
             int startingRow = (teamColor == ChessGame.TeamColor.WHITE) ? 2 : 7;
 
@@ -37,10 +37,24 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 ChessPosition newPosition = new ChessPosition(newRow, newCol);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if (targetPiece != null && !targetPiece.getTeamColor().equals(teamColor)) {
-                    validMoves.add(new ChessMove(myPosition, newPosition, null));
+                    addPromotionOrRegularMove(validMoves, myPosition, newPosition, teamColor);
                 }
             }
         }
         return validMoves;
+    }
+    private void addPromotionOrRegularMove(Collection<ChessMove> validMoves, ChessPosition start, ChessPosition end, ChessGame.TeamColor teamColor) {
+        int promotionRank = (teamColor == ChessGame.TeamColor.WHITE) ? 8 : 1;
+
+        if (end.getRow() == promotionRank) {
+            // Add moves for each possible promotion piece
+            validMoves.add(new ChessMove(start, end, ChessPiece.PieceType.QUEEN));
+            validMoves.add(new ChessMove(start, end, ChessPiece.PieceType.ROOK));
+            validMoves.add(new ChessMove(start, end, ChessPiece.PieceType.BISHOP));
+            validMoves.add(new ChessMove(start, end, ChessPiece.PieceType.KNIGHT));
+        } else {
+            // Regular move
+            validMoves.add(new ChessMove(start, end, null));
+        }
     }
 }
