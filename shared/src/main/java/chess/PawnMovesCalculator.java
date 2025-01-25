@@ -47,13 +47,11 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         int promotionRank = (teamColor == ChessGame.TeamColor.WHITE) ? 8 : 1;
 
         if (end.getRow() == promotionRank) {
-            // Add moves for each possible promotion piece
             validMoves.add(new ChessMove(start, end, ChessPiece.PieceType.QUEEN));
             validMoves.add(new ChessMove(start, end, ChessPiece.PieceType.ROOK));
             validMoves.add(new ChessMove(start, end, ChessPiece.PieceType.BISHOP));
             validMoves.add(new ChessMove(start, end, ChessPiece.PieceType.KNIGHT));
         } else {
-            // Regular move
             validMoves.add(new ChessMove(start, end, null));
         }
     }
