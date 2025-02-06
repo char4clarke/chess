@@ -9,9 +9,11 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    private ChessBoard board;
 
     public ChessGame() {
-
+        board = new ChessBoard();
+        board.resetBoard();
     }
 
     /**
