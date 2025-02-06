@@ -51,7 +51,16 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        ChessPiece piece = board.getPiece(startPosition);
+        Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> validMoves = new ArrayList<>();
 
+        for (ChessMove move : moves) {
+            if (isMoveValid(move)) {
+                validMoves.add(move);
+            }
+        }
+        return validMoves;
     }
 
     /**
@@ -111,5 +120,20 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         throw new RuntimeException("Not implemented");
+    }
+
+    public boolean isMoveValid(ChessMove move) {
+        ChessPiece start = board.getPiece(move.getStartPosition());
+        ChessPiece end = board.getPiece(move.getEndPosition());
+
+        board.addPiece(move.getEndPosition(), start);
+        board.addPiece(move.getStartPosition(), null);
+
+        boolean valid = !isInCheck(teamTurn);
+
+        board.addPiece(move.getStartPosition(), start);
+        board.addPiece(move.getEndPosition(), end);
+
+        return valid;
     }
 }
