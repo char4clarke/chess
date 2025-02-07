@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -35,6 +36,28 @@ public class ChessGame {
         this.teamTurn = team;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, teamTurn);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "board=" + board +
+                ", teamTurn=" + teamTurn +
+                '}';
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -52,6 +75,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null || piece.getTeamColor() != teamTurn) {
+            return null;
+        }
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
 
@@ -127,10 +153,8 @@ public class ChessGame {
 
                 if (piece != null && piece.getTeamColor() == teamColor) {
                     Collection<ChessMove> moves = validMoves(position);
-                    for (ChessMove move : moves) {
-                        if (isMoveValid(move)) {
-                            return false;
-                        }
+                    if (moves != null && !moves.isEmpty()) {
+                        return false;
                     }
                 }
             }
@@ -157,10 +181,8 @@ public class ChessGame {
 
                 if (piece != null && piece.getTeamColor() == teamColor) {
                     Collection<ChessMove> moves = validMoves(position);
-                    for (ChessMove move : moves) {
-                        if (isMoveValid(move)) {
-                            return false;
-                        }
+                    if (moves != null && !moves.isEmpty()) {
+                        return false;
                     }
                 }
             }
