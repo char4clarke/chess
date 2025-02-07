@@ -76,7 +76,7 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
         if (piece == null || piece.getTeamColor() != teamTurn) {
-            return null;
+            return new ArrayList<>();
         }
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
@@ -98,6 +98,16 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if (!isMoveValid(move)) {
+            throw new InvalidMoveException("Move puts the king in check.");
+        }
+        if (piece == null) {
+            throw new InvalidMoveException("No piece to move.");
+        }
+        if (piece.getTeamColor() != teamTurn) {
+            throw new InvalidMoveException("Not this team's turn.");
+        }
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        if (validMoves == null || !validMoves.contains(move)) {
             throw new InvalidMoveException("Move is invalid.");
         }
         board.addPiece(move.getEndPosition(), piece);
@@ -153,7 +163,7 @@ public class ChessGame {
 
                 if (piece != null && piece.getTeamColor() == teamColor) {
                     Collection<ChessMove> moves = validMoves(position);
-                    if (moves != null && !moves.isEmpty()) {
+                    if (!moves.isEmpty()) {
                         return false;
                     }
                 }
@@ -181,7 +191,7 @@ public class ChessGame {
 
                 if (piece != null && piece.getTeamColor() == teamColor) {
                     Collection<ChessMove> moves = validMoves(position);
-                    if (moves != null && !moves.isEmpty()) {
+                    if (!moves.isEmpty()) {
                         return false;
                     }
                 }
