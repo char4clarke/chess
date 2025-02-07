@@ -75,7 +75,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
-        if (piece == null || piece.getTeamColor() != teamTurn) {
+        if (piece == null) {
             return new ArrayList<>();
         }
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
@@ -97,9 +97,6 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece piece = board.getPiece(move.getStartPosition());
-        if (!isMoveValid(move)) {
-            throw new InvalidMoveException("Move puts the king in check.");
-        }
         if (piece == null) {
             throw new InvalidMoveException("No piece to move.");
         }
@@ -107,8 +104,19 @@ public class ChessGame {
             throw new InvalidMoveException("Not this team's turn.");
         }
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
-        if (validMoves == null || !validMoves.contains(move)) {
+        if (!validMoves.contains(move)) {
             throw new InvalidMoveException("Move is invalid.");
+        }
+
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            int promotion = (piece.getTeamColor() == TeamColor.WHITE) ? 8 : 1;
+            if (move.getEndPosition().getRow() == promotion) {
+                ChessPiece promotionPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+                board.addPiece(move.getEndPosition(), promotionPiece);
+                board.addPiece(move.getStartPosition(), null);
+                teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+                return;
+            }
         }
         board.addPiece(move.getEndPosition(), piece);
         board.addPiece(move.getStartPosition(), null);
@@ -225,7 +233,7 @@ public class ChessGame {
         board.addPiece(move.getEndPosition(), start);
         board.addPiece(move.getStartPosition(), null);
 
-        boolean valid = !isInCheck(teamTurn);
+        boolean valid = !isInCheck(start.getTeamColor());
 
         board.addPiece(move.getStartPosition(), start);
         board.addPiece(move.getEndPosition(), end);
