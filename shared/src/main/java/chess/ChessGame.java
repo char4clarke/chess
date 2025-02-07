@@ -15,6 +15,7 @@ public class ChessGame {
     private TeamColor teamTurn;
 
     public ChessGame() {
+        // initialize an empty board and start with white team's turn
         board = new ChessBoard();
         board.resetBoard();
         teamTurn = TeamColor.WHITE;
@@ -97,17 +98,18 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece piece = board.getPiece(move.getStartPosition());
-        if (piece == null) {
+        if (piece == null) { // if no piece
             throw new InvalidMoveException("No piece to move.");
         }
-        if (piece.getTeamColor() != teamTurn) {
+        if (piece.getTeamColor() != teamTurn) { // if wrong team's turn
             throw new InvalidMoveException("Not this team's turn.");
         }
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
-        if (!validMoves.contains(move)) {
+        if (!validMoves.contains(move)) { // if validMoves returns false
             throw new InvalidMoveException("Move is invalid.");
         }
 
+        // if pawn, see if promotion, and add the promotion
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             int promotion = (piece.getTeamColor() == TeamColor.WHITE) ? 8 : 1;
             if (move.getEndPosition().getRow() == promotion) {
@@ -118,9 +120,11 @@ public class ChessGame {
                 return;
             }
         }
+        // if not pawn, add the normal move
         board.addPiece(move.getEndPosition(), piece);
         board.addPiece(move.getStartPosition(), null);
 
+        // update teamTurn to be the other team's turn
         teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
