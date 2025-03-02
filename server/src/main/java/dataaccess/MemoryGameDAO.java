@@ -50,7 +50,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void clearGame() throws DataAccessException {
+    public void clear() throws DataAccessException {
         gameDataMap.clear();
         nextID = 0;
     }
