@@ -59,8 +59,22 @@ public class GameServiceTests {
         Assertions.assertNotNull(result.gameID());
         Assertions.assertTrue(result.gameID() >= 0);
         Assertions.assertEquals("Success", result.message());
-
     }
+
+
+    @Test
+    @Order(2)
+    @DisplayName("Create Game (Negative)")
+    public void createGameNegative() {
+        GameService.CreateGameRequest request = new GameService.CreateGameRequest(null);
+        GameService.CreateGameResult result = GameService.createGame(request);
+
+        Assertions.assertNull(result.gameID());
+        Assertions.assertEquals("Error: Game name is empty", result.message());
+    }
+
+
+
 
 
 
