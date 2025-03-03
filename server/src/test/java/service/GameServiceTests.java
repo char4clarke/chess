@@ -3,7 +3,9 @@ package service;
 import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
+import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
@@ -16,6 +18,7 @@ import java.util.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GameServiceTests {
+    private static MemoryAuthDAO authDAO;
     private static MemoryGameDAO gameDAO;
     private static Server server;
     private static GameService gameService;
@@ -30,7 +33,8 @@ public class GameServiceTests {
 
         serverFacade = new TestServerFacade("localhost", Integer.toString(port));
         gameDAO = new MemoryGameDAO();
-        gameService = new GameService(gameDAO);
+        authDAO = new MemoryAuthDAO();
+        gameService = new GameService(gameDAO, authDAO);
     }
 
     @AfterAll
@@ -43,6 +47,7 @@ public class GameServiceTests {
         serverFacade.clear();
         try {
             gameDAO.clear();
+            authDAO.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -53,7 +58,7 @@ public class GameServiceTests {
     @DisplayName("Create Game (Positive)")
     public void createGamePositive() {
         GameService.CreateGameRequest request = new GameService.CreateGameRequest("test game");
-        GameService.CreateGameResult result = GameService.createGame(request);
+        GameService.CreateGameResult result = gameService.createGame(request);
 
 
         Assertions.assertNotNull(result.gameID());
@@ -67,7 +72,7 @@ public class GameServiceTests {
     @DisplayName("Create Game (Negative)")
     public void createGameNegative() {
         GameService.CreateGameRequest request = new GameService.CreateGameRequest(null);
-        GameService.CreateGameResult result = GameService.createGame(request);
+        GameService.CreateGameResult result = gameService.createGame(request);
 
         Assertions.assertNull(result.gameID());
         Assertions.assertEquals("Error: Game name is empty", result.message());
@@ -78,9 +83,9 @@ public class GameServiceTests {
     @Order(3)
     @DisplayName("List Games (Positive)")
     public void listGamesPositive() {
-        GameService.createGame(new GameService.CreateGameRequest("test game 1"));
-        GameService.createGame(new GameService.CreateGameRequest("test game 2"));
-        GameService.createGame(new GameService.CreateGameRequest("test game 3"));
+        gameService.createGame(new GameService.CreateGameRequest("test game 1"));
+        gameService.createGame(new GameService.CreateGameRequest("test game 2"));
+        gameService.createGame(new GameService.CreateGameRequest("test game 3"));
         GameService.ListGamesResult result = gameService.listGames();
 
         Assertions.assertNotNull(result.allGames());
@@ -101,15 +106,18 @@ public class GameServiceTests {
 
     @Test
     @Order(5)
-    @DisplayName("Get Games (Positive)")
+    @DisplayName("Get Game (Positive)")
     public void getGamePositive() {
-        GameService.CreateGameResult createGameResult = GameService.createGame(new GameService.CreateGameRequest("test game"));
-        GameService.GetGameResult getGameResult = gameService.getGame(new GameService.GetGameRequest(createGameResult.gameID()));
+        GameService.CreateGameResult createResult = gameService.createGame(new GameService.CreateGameRequest("test game"));
+        GameService.GetGameResult getResult = gameService.getGame(new GameService.GetGameRequest(createResult.gameID()));
 
-        Assertions.assertNotNull(getGameResult.game());
-        Assertions.assertEquals(createGameResult.gameID(), getGameResult.game().gameID());
-        Assertions.assertEquals("Success", getGameResult.message());
+        Assertions.assertNotNull(getResult.game());
+        Assertions.assertEquals(createResult.gameID(), getResult.game().gameID());
+        Assertions.assertEquals("Success", getResult.message());
     }
+
+
+
 
     @Test
     @Order(6)
@@ -120,6 +128,40 @@ public class GameServiceTests {
         Assertions.assertNull(result.game());
         Assertions.assertTrue(result.message().contains("Error:"));
     }
+
+
+
+    @Test
+    @Order(7)
+    @DisplayName("Join Game (Positive)")
+    public void joinGamePositive() throws DataAccessException {
+        GameService.CreateGameRequest createGameRequest = new GameService.CreateGameRequest("test game");
+        GameService.CreateGameResult createGameResult = gameService.createGame(createGameRequest);
+        String token = authDAO.createAuthToken("user");
+
+        GameService.JoinGameResult result = gameService.joinGame(new GameService.JoinGameRequest("WHITE", createGameResult.gameID()), token);
+
+        Assertions.assertNotNull(createGameResult.gameID());
+        Assertions.assertEquals("Success", result.message());
+    }
+
+
+    @Test
+    @Order(8)
+    @DisplayName("Join Game (Negative)")
+    public void joinGameNegative() {
+        GameService.CreateGameRequest createGameRequest = new GameService.CreateGameRequest("test game");
+        GameService.CreateGameResult createGameResult = gameService.createGame(createGameRequest);
+        String invalidToken = "invalid";
+
+        GameService.JoinGameResult result = gameService.joinGame(new GameService.JoinGameRequest("WHITE", createGameResult.gameID()), invalidToken);
+        Assertions.assertTrue(result.message().contains("Error:"));
+    }
+
+
+
+
+
 
 
 
