@@ -74,6 +74,32 @@ public class GameServiceTests {
     }
 
 
+    @Test
+    @Order(3)
+    @DisplayName("List Games (Positive)")
+    public void listGamesPositive() {
+        GameService.createGame(new GameService.CreateGameRequest("test game 1"));
+        GameService.createGame(new GameService.CreateGameRequest("test game 2"));
+        GameService.createGame(new GameService.CreateGameRequest("test game 3"));
+        GameService.ListGamesResult result = gameService.listGames();
+
+        Assertions.assertNotNull(result.allGames());
+        Assertions.assertEquals(3, result.allGames().size());
+        Assertions.assertEquals("Success", result.message());
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("List Games (Negative)")
+    public void listGamesNegative() {
+
+        GameService.ListGamesResult result = gameService.listGames();
+
+        Assertions.assertEquals(0, result.allGames().size());
+        Assertions.assertNotNull(result);
+    }
+
+
 
 
 
