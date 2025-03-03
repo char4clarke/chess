@@ -9,6 +9,7 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ClearServiceTests {
     private static MemoryAuthDAO authDAO;
     private static MemoryGameDAO gameDAO;
