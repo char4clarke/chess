@@ -24,7 +24,6 @@ public class Server {
         GameService gameService = new GameService(gameDAO, authDAO);
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
 
-        // Register your endpoints and handle exceptions here.
         new RegisterHandler(userService);
         new LoginHandler(userService);
         new LogoutHandler(userService);
@@ -32,9 +31,6 @@ public class Server {
         new ListGamesHandler(gameService);
         new JoinGameHandler(gameService);
         new ClearHandler(clearService);
-
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
