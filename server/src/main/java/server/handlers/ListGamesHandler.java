@@ -3,6 +3,7 @@ package server.handlers;
 import static spark.Spark.get;
 import com.google.gson.Gson;
 import service.GameService;
+import service.UserService;
 
 public class ListGamesHandler {
 
@@ -14,6 +15,14 @@ public class ListGamesHandler {
         get("/game", (req, res) -> {
             String authToken = req.headers("authorization");
             if (authToken == null) {
+                res.status(401);
+                res.type("application/json");
+                return serializer.toJson(new Message("Error: unauthorized"));
+            }
+            try {
+                UserService.validateAuthToken(authToken);
+            }
+            catch (Exception e) {
                 res.status(401);
                 res.type("application/json");
                 return serializer.toJson(new Message("Error: unauthorized"));

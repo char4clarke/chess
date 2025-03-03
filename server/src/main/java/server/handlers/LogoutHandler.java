@@ -1,6 +1,7 @@
 package server.handlers;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import service.UserService;
 
 import static spark.Spark.delete;
@@ -22,12 +23,18 @@ public class LogoutHandler {
             }
 
             try {
+                UserService.validateAuthToken(authToken);
                 UserService.LogoutRequest logoutRequest = new UserService.LogoutRequest(authToken);
                 userService.logout(logoutRequest);
 
                 res.status(200);
                 res.type("application/json");
                 return "{}";
+            }
+            catch (DataAccessException e) {
+                res.status(401);
+                res.type("application/json");
+                return serializer.toJson(new Message("Error: unauthorized"));
             }
             catch (Exception e) {
                 res.status(500);

@@ -6,6 +6,7 @@ import model.AuthData;
 import model.GameData;
 import dataaccess.AuthDAO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameService {
@@ -20,7 +21,7 @@ public class GameService {
     public record CreateGameRequest(String gameName) {}
     public record CreateGameResult(Integer gameID, String message) {}
 
-    public record ListGamesResult(List<GameData> allGames, String message) {}
+    public record ListGamesResult(List<GameData> games, String message) {}
 
     public record GetGameRequest(int gameID) {}
     public record GetGameResult(GameData game, String message) {}
@@ -30,14 +31,20 @@ public class GameService {
 
 
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) {
-
+    public CreateGameResult createGame(CreateGameRequest createGameRequest, String authToken) {
         if (createGameRequest.gameName == null) {
             return new CreateGameResult(null, "Error: Game name is empty");
         }
-
         try {
-
+            AuthData authData = authDAO.getAuth(authToken);
+            if (authData == null || authData.username() == null) {
+                return new CreateGameResult(null, "Error: unauthorized");
+            }
+        }
+        catch (DataAccessException e) {
+            return new CreateGameResult(null, "Error: unauthorized");
+        }
+        try {
             int gameID = gameDAO.createGame(createGameRequest.gameName);
             return new CreateGameResult(gameID, "Success");
         }
@@ -49,18 +56,21 @@ public class GameService {
 
     public ListGamesResult listGames() {
         try {
-            List<GameData> allGames = gameDAO.listGames();
-            return new ListGamesResult(allGames, "Success");
+            List<GameData> games = gameDAO.listGames();
+            if (games == null) {
+                games = new ArrayList<>();
+            }
+            return new ListGamesResult(games, "Success");
         }
         catch (DataAccessException e) {
-            return new ListGamesResult(null, "Error: " + e.getMessage());
+            return new ListGamesResult(new ArrayList<>(), "Error: " + e.getMessage());
         }
     }
 
 
 
     public GetGameResult getGame(GetGameRequest getGameRequest) {
-        if (getGameRequest.gameID <= 0) {
+        if (getGameRequest.gameID < 0) {
             return new GetGameResult(null, "Error: invalid gameID");
         }
         try {
@@ -81,16 +91,38 @@ public class GameService {
         if (joinGameRequest.playerColor == null) {
             return new JoinGameResult("Error: Color is null");
         }
-        if (joinGameRequest.gameID() < 0) {
+        if (joinGameRequest.gameID() <= 0) {
             return new JoinGameResult("Error: invalid game ID");
         }
 
         try {
             AuthData authData = authDAO.getAuth(authToken);
-            if (authData == null) {
+            if (authData == null || authData.username() == null) {
                 return new JoinGameResult("Error: unauthorized");
             }
             String username = authData.username();
+
+            GameData game = gameDAO.getGame(joinGameRequest.gameID);
+            if (game == null) {
+                return new JoinGameResult("Error: invalid game ID");
+            }
+
+            if (joinGameRequest.playerColor().equalsIgnoreCase("WHITE")) {
+                if (game.whiteUsername() != null) {
+                    return new JoinGameResult("Error: already taken");
+                }
+                game = game.setWhiteUsername(username);
+            } else if (joinGameRequest.playerColor().equalsIgnoreCase("BLACK")) {
+                if (game.blackUsername() != null) {
+                    return new JoinGameResult("Error: already taken");
+                }
+                game = game.setBlackUsername(username);
+            } else {
+                return new JoinGameResult("Error: invalid color");
+            }
+
+            gameDAO.updateGame(game);
+
             gameDAO.joinGame(joinGameRequest.gameID, username);
             return new JoinGameResult("Success");
         }

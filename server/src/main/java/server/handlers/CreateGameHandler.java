@@ -7,44 +7,38 @@ import static spark.Spark.post;
 
 public class CreateGameHandler {
     private final Gson serializer = new Gson();
+    private final GameService gameService;
 
     private record Message(String message) {}
 
     public CreateGameHandler(GameService gameService) {
+        this.gameService = gameService;
 
 
         post("/game", (req, res) -> {
             String authToken = req.headers("authorization");
+            GameService.CreateGameRequest request = serializer.fromJson(req.body(), GameService.CreateGameRequest.class);
+            GameService.CreateGameResult result = gameService.createGame(request, authToken);
+
             if (authToken == null) {
                 res.status(401);
                 res.type("application/json");
                 return serializer.toJson(new Message("Error: unauthorized"));
             }
 
-            String request = req.body();
-            if (request == null) {
+            if (result.message().equals("Error: unauthorized")) {
+                res.status(401);
+            } else if (result.message().contains("Error: bad request")) {
                 res.status(400);
-                res.type("application/json");
-                return serializer.toJson(new Message("Error: bad request"));
-            }
-            try {
-                GameService.CreateGameRequest createGameRequest = serializer.fromJson(req.body(), GameService.CreateGameRequest.class);
-                if (createGameRequest.gameName() == null) {
-                    res.status(400);
-                    res.type("application/json");
-                    return serializer.toJson(new Message("Error: bad request"));
-                }
-
-                GameService.CreateGameResult createGameResult = gameService.createGame(createGameRequest);
-                res.status(200);
-                res.type("application/json");
-                return serializer.toJson(createGameRequest);
-            }
-            catch (Exception e) {
+            } else if (result.message().contains("Error:")) {
                 res.status(500);
-                res.type("application/json");
-                return serializer.toJson(new Message("Error: " + e.getMessage()));
+            } else {
+                res.status(200);
             }
+
+            res.type("application/json");
+            return serializer.toJson(result);
+
         });
     }
 }
