@@ -11,7 +11,7 @@ public class JoinGameHandler {
 
     private record Message(String message) {}
 
-    public record JoinGameRequest(Integer gameID, String playerColor) {}
+    public record JoinGameRequest(String playerColor, Integer gameID) {}
 
     public JoinGameHandler(GameService gameService) {
         put("/game", (req, res) -> {
@@ -51,8 +51,8 @@ public class JoinGameHandler {
                 }
 
                 try {
-                    GameService.JoinGameRequest serviceJoinRequest = new GameService.JoinGameRequest(joinGameRequest.gameID(), username);
-                    GameService.JoinGameResult joinGameResult = gameService.joinGame(serviceJoinRequest);
+                    GameService.JoinGameRequest serviceJoinRequest = new GameService.JoinGameRequest(joinGameRequest.playerColor, joinGameRequest.gameID);
+                    GameService.JoinGameResult joinGameResult = gameService.joinGame(serviceJoinRequest, username);
                     if (joinGameResult.message().contains("taken")) {
                         res.status(403);
                         res.type("application/json");

@@ -2,15 +2,19 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import model.AuthData;
 import model.GameData;
+import dataaccess.AuthDAO;
 
 import java.util.List;
 
 public class GameService {
     private static GameDAO gameDAO;
+    private AuthDAO authDAO;
 
     public GameService(GameDAO gameDAO) {
         this.gameDAO = gameDAO;
+        this.authDAO = authDAO;
     }
 
     public record CreateGameRequest(String gameName) {}
@@ -21,17 +25,19 @@ public class GameService {
     public record GetGameRequest(int gameID) {}
     public record GetGameResult(GameData game, String message) {}
 
-    public record JoinGameRequest(int gameID, String username) {}
+    public record JoinGameRequest(String playerColor, int gameID) {}
     public record JoinGameResult(String message) {}
 
 
 
     public static CreateGameResult createGame(CreateGameRequest createGameRequest) {
+
         if (createGameRequest.gameName == null) {
             return new CreateGameResult(null, "Error: Game name is empty");
         }
 
         try {
+
             int gameID = gameDAO.createGame(createGameRequest.gameName);
             return new CreateGameResult(gameID, "Success");
         }
@@ -64,13 +70,16 @@ public class GameService {
     }
 
 
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) {
-        if (joinGameRequest.username == null) {
-            return new JoinGameResult("Error: User is null");
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest, String authToken) {
+
+        if (joinGameRequest.playerColor == null) {
+            return new JoinGameResult("Error: Color is null");
         }
 
         try {
-            gameDAO.joinGame(joinGameRequest.gameID, joinGameRequest.username);
+            AuthData authData = authDAO.getAuth(authToken);
+            String username = authData.username();
+            gameDAO.joinGame(joinGameRequest.gameID, username);
             return new JoinGameResult("Success");
         }
         catch (DataAccessException e) {
