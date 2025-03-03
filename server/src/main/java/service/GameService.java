@@ -7,7 +7,7 @@ import model.GameData;
 import java.util.List;
 
 public class GameService {
-    private final GameDAO gameDAO;
+    private static GameDAO gameDAO;
 
     public GameService(GameDAO gameDAO) {
         this.gameDAO = gameDAO;
@@ -26,9 +26,9 @@ public class GameService {
 
 
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) {
+    public static CreateGameResult createGame(CreateGameRequest createGameRequest) {
         if (createGameRequest.gameName == null) {
-            return new CreateGameResult(null, "Game name is empty");
+            return new CreateGameResult(null, "Error: Game name is empty");
         }
 
         try {
@@ -66,7 +66,7 @@ public class GameService {
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) {
         if (joinGameRequest.username == null) {
-            return new JoinGameResult("User is null");
+            return new JoinGameResult("Error: User is null");
         }
 
         try {

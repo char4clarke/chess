@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class UserService {
     private final UserDAO userDAO;
-    private final AuthDAO authDAO;
+    private static AuthDAO authDAO;
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
@@ -31,13 +31,13 @@ public class UserService {
 
     public RegisterResult register(RegisterRequest registerRequest) {
         if (registerRequest.username == null || registerRequest.password == null || registerRequest.email == null) {
-            return new RegisterResult(null, null, "Invalid input");
+            return new RegisterResult(null, null, "Error: Invalid input");
         }
 
         try {
             UserData u = userDAO.getUser(registerRequest.username);
             if (u != null) {
-                return new RegisterResult(null, null, "Username already taken");
+                return new RegisterResult(null, null, "Error: Username already taken");
             }
         }
         catch (DataAccessException e) {
@@ -63,16 +63,16 @@ public class UserService {
 
     public LoginResult login(LoginRequest loginRequest) {
         if (loginRequest.username == null || loginRequest.password == null) {
-            return new LoginResult(null, null, "Invalid input");
+            return new LoginResult(null, null, "Error: Invalid input");
         }
 
         try {
             UserData user = null;
             user = userDAO.getUser(loginRequest.username);
             if (user == null) {
-                return new LoginResult(null, null, "User does not exist");
+                return new LoginResult(null, null, "Error: User does not exist");
             } else if (!user.password().equals(loginRequest.password)) {
-                return new LoginResult(null, null, "Incorrect password");
+                return new LoginResult(null, null, "Error: Incorrect password");
             }
 
             String authToken = generateToken();
@@ -88,8 +88,19 @@ public class UserService {
     }
     public void logout(LogoutRequest logoutRequest) throws DataAccessException {
         if (logoutRequest.authToken == null) {
-            throw new DataAccessException("Invalid auth token");
+            throw new DataAccessException("Error: Invalid auth token");
         }
         authDAO.deleteAuth(logoutRequest.authToken());
+    }
+
+    public static String validateAuthToken(String authToken) throws DataAccessException {
+        if (authToken == null) {
+            throw new DataAccessException("Error: unauthorized");
+        }
+        AuthData authData = authDAO.getAuth(authToken);
+        if (authData == null || authData.username() == null) {
+            throw new DataAccessException("Error: unauthorized");
+        }
+        return authData.username();
     }
 }
