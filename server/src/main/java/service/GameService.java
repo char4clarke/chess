@@ -9,10 +9,10 @@ import dataaccess.AuthDAO;
 import java.util.List;
 
 public class GameService {
-    private static GameDAO gameDAO;
-    private AuthDAO authDAO;
+    private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
 
-    public GameService(GameDAO gameDAO) {
+    public GameService(GameDAO gameDAO, AuthDAO authDAO) {
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
     }
@@ -30,7 +30,7 @@ public class GameService {
 
 
 
-    public static CreateGameResult createGame(CreateGameRequest createGameRequest) {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) {
 
         if (createGameRequest.gameName == null) {
             return new CreateGameResult(null, "Error: Game name is empty");
@@ -65,6 +65,9 @@ public class GameService {
         }
         try {
             GameData game = gameDAO.getGame(getGameRequest.gameID);
+            if (game == null) {
+                return new GetGameResult(null, "Error: invalid gameID");
+            }
             return new GetGameResult(game, "Success");
         }
         catch (DataAccessException e) {
@@ -78,9 +81,15 @@ public class GameService {
         if (joinGameRequest.playerColor == null) {
             return new JoinGameResult("Error: Color is null");
         }
+        if (joinGameRequest.gameID() < 0) {
+            return new JoinGameResult("Error: invalid game ID");
+        }
 
         try {
             AuthData authData = authDAO.getAuth(authToken);
+            if (authData == null) {
+                return new JoinGameResult("Error: unauthorized");
+            }
             String username = authData.username();
             gameDAO.joinGame(joinGameRequest.gameID, username);
             return new JoinGameResult("Success");

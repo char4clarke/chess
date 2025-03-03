@@ -8,13 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 public class MemoryGameDAO implements GameDAO {
-    private Map<Integer, GameData> gameDataMap;
-    private int nextID;
+    private Map<Integer, GameData> gameDataMap = new HashMap<>();
+    private int nextID = 1;
 
-    public MemoryGameDAO() {
-        this.gameDataMap = new HashMap<>();
-        this.nextID = 0;
-    }
 
     @Override
     public List<GameData> listGames() throws DataAccessException {
@@ -39,11 +35,16 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public void joinGame(int gameID, String username) throws DataAccessException {
         GameData game = gameDataMap.get(gameID);
+        if (game == null) {
+            throw new DataAccessException("Error: game not found");
+        }
 
         if (game.whiteUsername() == null) {
             game.setWhiteUsername(username);
         } else if (game.blackUsername() == null) {
             game.setBlackUsername(username);
+        } else {
+            throw new DataAccessException("Error: game is full");
         }
 
         gameDataMap.put(gameID, game);
@@ -52,6 +53,6 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public void clear() throws DataAccessException {
         gameDataMap.clear();
-        nextID = 0;
+        nextID = 1;
     }
 }

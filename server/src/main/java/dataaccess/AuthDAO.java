@@ -13,4 +13,6 @@ public interface AuthDAO {
 
     void clear() throws DataAccessException;
 
+    String createAuthToken(String username) throws DataAccessException;
+
 }

@@ -4,14 +4,10 @@ import model.AuthData;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
-
-    private Map<String, AuthData> authDataMap;
-
-    public MemoryAuthDAO() {
-        this.authDataMap = new HashMap<>();
-    }
+    private final Map<String, AuthData> authDataMap = new HashMap<>();
 
 
     @Override
@@ -32,5 +28,12 @@ public class MemoryAuthDAO implements AuthDAO {
     @Override
     public void clear() throws DataAccessException {
         authDataMap.clear();
+    }
+
+    public String createAuthToken(String username) throws DataAccessException {
+        String token = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(token, username);
+        createAuth(authData);
+        return token;
     }
 }

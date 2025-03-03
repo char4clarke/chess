@@ -35,7 +35,7 @@ public class CreateGameHandler {
                     return serializer.toJson(new Message("Error: bad request"));
                 }
 
-                GameService.CreateGameResult createGameResult = GameService.createGame(createGameRequest);
+                GameService.CreateGameResult createGameResult = gameService.createGame(createGameRequest);
                 res.status(200);
                 res.type("application/json");
                 return serializer.toJson(createGameRequest);
