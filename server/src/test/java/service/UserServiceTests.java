@@ -82,7 +82,7 @@ public class UserServiceTests {
         UserService.LoginRequest loginRequest = new UserService.LoginRequest("username", "password");
         UserService.LoginResult loginResult = userService.login(loginRequest);
 
-        Assertions.assertEquals("Error: User does not exist", loginResult.message());
+        Assertions.assertEquals("Error: unauthorized", loginResult.message());
         Assertions.assertNull(loginResult.username());
         Assertions.assertNull(loginResult.authToken());
 
@@ -92,7 +92,7 @@ public class UserServiceTests {
         loginRequest = new UserService.LoginRequest("username", "incorrect");
         loginResult = userService.login(loginRequest);
 
-        Assertions.assertEquals("Error: Incorrect password", loginResult.message());
+        Assertions.assertEquals("Error: unauthorized", loginResult.message());
         Assertions.assertNull(loginResult.username());
         Assertions.assertNull(loginResult.authToken());
     }
