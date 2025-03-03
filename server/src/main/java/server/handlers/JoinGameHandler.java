@@ -1,0 +1,85 @@
+package server.handlers;
+
+import static spark.Spark.put;
+import com.google.gson.Gson;
+import service.GameService;
+import service.UserService;
+
+public class JoinGameHandler {
+
+    private final Gson serializer = new Gson();
+
+    private record Message(String message) {}
+
+    public record JoinGameRequest(Integer gameID, String playerColor) {}
+
+    public JoinGameHandler(GameService gameService) {
+        put("/game", (req, res) -> {
+            String authToken = req.headers("authorization");
+            if (authToken == null) {
+                res.status(401);
+                res.type("application/json");
+                return serializer.toJson(new Message("Error: unauthorized"));
+            }
+
+            String request = req.body();
+            if (request == null) {
+                res.status(400);
+                res.type("application/json");
+                return serializer.toJson(new Message("Error: bad request"));
+            }
+
+            try {
+                JoinGameRequest joinGameRequest = serializer.fromJson(request, JoinGameRequest.class);
+
+                if (joinGameRequest.gameID == null || joinGameRequest.playerColor == null || (!joinGameRequest.playerColor().equalsIgnoreCase("WHITE") && !joinGameRequest.playerColor().equalsIgnoreCase("BLACK"))) {
+                    res.status(400);
+                    res.type("application/json");
+                    return serializer.toJson(new Message("Error: bad request"));
+                }
+
+
+
+                String username;
+                try {
+                    username = UserService.validateAuthToken(authToken);
+                }
+                catch (Exception e) {
+                    res.status(401);
+                    res.type("application/json");
+                    return serializer.toJson(new Message("Error: unauthorized"));
+                }
+
+                try {
+                    GameService.JoinGameRequest serviceJoinRequest = new GameService.JoinGameRequest(joinGameRequest.gameID(), username);
+                    GameService.JoinGameResult joinGameResult = gameService.joinGame(serviceJoinRequest);
+                    if (joinGameResult.message().contains("taken")) {
+                        res.status(403);
+                        res.type("application/json");
+                        return serializer.toJson(new Message("Error: already taken"));
+                    } else if (joinGameResult.message().contains("Success")) {
+                        res.status(200);
+                        res.type("application/json");
+                        return "{}";
+                    } else {
+                        res.status(400);
+                        res.type("application/json");
+                        return serializer.toJson(new Message(joinGameResult.message()));
+                    }
+
+                }
+                catch (Exception e) {
+                    res.status(500);
+                    res.type("application/json");
+                    return serializer.toJson(new Message("Error: " + e.getMessage()));
+                }
+            }
+            catch (Exception e) {
+                res.status(500);
+                res.type("application/json");
+                return serializer.toJson(new Message("Error: " + e.getMessage()));
+            }
+        });
+    }
+
+}
