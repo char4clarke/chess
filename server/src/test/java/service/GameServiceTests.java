@@ -99,6 +99,30 @@ public class GameServiceTests {
         Assertions.assertNotNull(result);
     }
 
+    @Test
+    @Order(5)
+    @DisplayName("Get Games (Positive)")
+    public void getGamePositive() {
+        GameService.CreateGameResult createGameResult = GameService.createGame(new GameService.CreateGameRequest("test game"));
+        GameService.GetGameResult getGameResult = gameService.getGame(new GameService.GetGameRequest(createGameResult.gameID()));
+
+        Assertions.assertNotNull(getGameResult.game());
+        Assertions.assertEquals(createGameResult.gameID(), getGameResult.game().gameID());
+        Assertions.assertEquals("Success", getGameResult.message());
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Get Games (Negative)")
+    public void getGameNegative() {
+        GameService.GetGameResult result = gameService.getGame(new GameService.GetGameRequest(-1));
+
+        Assertions.assertNull(result.game());
+        Assertions.assertTrue(result.message().contains("Error:"));
+    }
+
+
+
 
 
 

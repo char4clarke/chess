@@ -60,6 +60,9 @@ public class GameService {
 
 
     public GetGameResult getGame(GetGameRequest getGameRequest) {
+        if (getGameRequest.gameID <= 0) {
+            return new GetGameResult(null, "Error: invalid gameID");
+        }
         try {
             GameData game = gameDAO.getGame(getGameRequest.gameID);
             return new GetGameResult(game, "Success");
