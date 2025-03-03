@@ -70,9 +70,9 @@ public class UserService {
             UserData user = null;
             user = userDAO.getUser(loginRequest.username);
             if (user == null) {
-                return new LoginResult(null, null, "Error: User does not exist");
+                return new LoginResult(null, null, "Error: unauthorized");
             } else if (!user.password().equals(loginRequest.password)) {
-                return new LoginResult(null, null, "Error: Incorrect password");
+                return new LoginResult(null, null, "Error: unauthorized");
             }
 
             String authToken = generateToken();
