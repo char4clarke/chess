@@ -8,7 +8,7 @@ import service.ClearService;
 public class ClearHandler {
     private final Gson serializer = new Gson();
 
-    private record message(String Message) {}
+    private record ClearMessage(String message) {}
 
     public ClearHandler(ClearService clearService) {
         delete("/db", (req, res) -> {
@@ -21,7 +21,7 @@ public class ClearHandler {
             catch (Exception e) {
                 res.status(500);
                 res.type("application/json");
-                return serializer.toJson(new message("Error: " + e.getMessage()));
+                return serializer.toJson(new ClearMessage("Error: " + e.getMessage()));
             }
         });
     }
