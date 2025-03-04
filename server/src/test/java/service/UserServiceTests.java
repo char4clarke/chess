@@ -4,19 +4,17 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
 import model.AuthData;
-import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserServiceTests {
-    private MemoryUserDAO userDAO;
     private MemoryAuthDAO authDAO;
     private UserService userService;
 
     @BeforeEach
     public void init() throws DataAccessException {
-        userDAO = new MemoryUserDAO();
+        MemoryUserDAO userDAO = new MemoryUserDAO();
         authDAO = new MemoryAuthDAO();
         userDAO.clear();
         authDAO.clear();

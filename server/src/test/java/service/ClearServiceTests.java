@@ -7,7 +7,6 @@ import dataaccess.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import server.Server;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ClearServiceTests {
@@ -34,7 +33,7 @@ public class ClearServiceTests {
     @Test
     @Order(1)
     @DisplayName("Clear User Data")
-    public void clearUserData() throws DataAccessException {
+    public void clearUserData() {
         Assertions.assertNotNull(userDAO.getUser("username"));
 
         clearService.clear();
@@ -45,7 +44,7 @@ public class ClearServiceTests {
     @Test
     @Order(2)
     @DisplayName("Clear Game Data")
-    public void clearGameData() throws DataAccessException {
+    public void clearGameData() {
         Assertions.assertFalse(gameDAO.listGames().isEmpty());
 
         clearService.clear();

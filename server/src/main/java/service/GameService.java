@@ -33,7 +33,7 @@ public class GameService {
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest, String authToken) {
         if (createGameRequest.gameName == null) {
-            return new CreateGameResult(null, "Error: Game name is empty");
+            return new CreateGameResult(null, "Error: no game name");
         }
         try {
             AuthData authData = authDAO.getAuth(authToken);

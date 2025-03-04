@@ -93,7 +93,7 @@ public class UserService {
         authDAO.deleteAuth(logoutRequest.authToken());
     }
 
-    public static String validateAuthToken(String authToken) throws DataAccessException {
+    public static void validateAuthToken(String authToken) throws DataAccessException {
         if (authToken == null) {
             throw new DataAccessException("Error: unauthorized");
         }
@@ -101,6 +101,5 @@ public class UserService {
         if (authData == null || authData.username() == null) {
             throw new DataAccessException("Error: unauthorized");
         }
-        return authData.username();
     }
 }

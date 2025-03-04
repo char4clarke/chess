@@ -4,6 +4,7 @@ import model.GameData;
 
 import java.util.List;
 
+// abstract interface to be able to later add database functionality
 public interface GameDAO {
 
     List<GameData> listGames() throws DataAccessException;

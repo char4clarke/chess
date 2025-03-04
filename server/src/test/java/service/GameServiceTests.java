@@ -10,12 +10,11 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GameServiceTests {
     private static MemoryAuthDAO authDAO;
-    private static MemoryGameDAO gameDAO;
     private static GameService gameService;
 
     @BeforeEach
-    public void setup() {
-        gameDAO = new MemoryGameDAO();
+    public void init() {
+        MemoryGameDAO gameDAO = new MemoryGameDAO();
         authDAO = new MemoryAuthDAO();
         gameService = new GameService(gameDAO, authDAO);
 
@@ -51,7 +50,7 @@ public class GameServiceTests {
         GameService.CreateGameResult result = gameService.createGame(request, token);
 
         Assertions.assertNull(result.gameID());
-        Assertions.assertEquals("Error: Game name is empty", result.message());
+        Assertions.assertEquals("Error: no game name", result.message());
     }
 
 

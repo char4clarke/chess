@@ -8,28 +8,26 @@ import java.util.List;
 import java.util.Map;
 
 public class MemoryGameDAO implements GameDAO {
-    private Map<Integer, GameData> gameDataMap = new HashMap<>();
+    private final Map<Integer, GameData> gameDataMap = new HashMap<>();
     private int nextID = 1;
 
 
     @Override
-    public List<GameData> listGames() throws DataAccessException {
+    public List<GameData> listGames() {
         return new ArrayList<>(gameDataMap.values());
     }
 
     @Override
-    public int createGame(String gameName) throws DataAccessException {
+    public int createGame(String gameName) {
         int gameID = nextID++;
-
         GameData game = new GameData(gameID, null, null, gameName, null);
         gameDataMap.put(gameID, game);
         return gameID;
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
-    GameData game = gameDataMap.get(gameID);
-    return game;
+    public GameData getGame(int gameID) {
+        return gameDataMap.get(gameID);
     }
 
     @Override

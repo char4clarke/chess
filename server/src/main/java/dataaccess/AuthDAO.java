@@ -2,7 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 
-
+// abstract interface to be able to later add database functionality
 public interface AuthDAO {
 
     void createAuth(AuthData auth) throws DataAccessException;
