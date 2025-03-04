@@ -135,26 +135,10 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition king = getKingPosition(teamColor);
-        TeamColor opponent = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        ChessPosition kingPosition = getKingPosition(teamColor);
+        TeamColor opponent = getOpponentColor(teamColor);
 
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(position);
-
-                if (piece != null && piece.getTeamColor() == opponent) {
-                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
-
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(king)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+        return isSquareAttacked(kingPosition, opponent);
     }
 
     /**
@@ -164,24 +148,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if (!isInCheck(teamColor)) {
-            return false;
-        }
-
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(position);
-
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> moves = validMoves(position);
-                    if (!moves.isEmpty()) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+        return isInCheck(teamColor) && !hasValidMoves(teamColor);
     }
 
     /**
@@ -192,24 +159,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if (isInCheck(teamColor)) {
-            return false;
-        }
-
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(position);
-
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> moves = validMoves(position);
-                    if (!moves.isEmpty()) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+        return !isInCheck(teamColor) && !hasValidMoves(teamColor);
     }
 
     /**
@@ -257,5 +207,50 @@ public class ChessGame {
             }
         }
         return null;
+    }
+
+    private boolean hasValidMoves(TeamColor teamColor) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
+
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    if (!validMoves(position).isEmpty()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isSquareAttacked(ChessPosition position, TeamColor attackerColor) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                if (isAttacking(position, new ChessPosition(i, j), attackerColor)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isAttacking(ChessPosition target, ChessPosition attackerPos, TeamColor attackerColor) {
+        ChessPiece piece = board.getPiece(attackerPos);
+        if (piece == null || piece.getTeamColor() != attackerColor) {
+            return false;
+        }
+
+        for (ChessMove move : piece.pieceMoves(board, attackerPos)) {
+            if (move.getEndPosition().equals(target)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private TeamColor getOpponentColor(TeamColor teamColor) {
+        return (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 }

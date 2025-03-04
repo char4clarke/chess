@@ -37,7 +37,9 @@ public class JoinGameHandler {
                     res.status(400);
                     res.type("application/json");
                     return serializer.toJson(new Message("Error: bad request"));
-                } else if (joinGameRequest.playerColor == null || (!joinGameRequest.playerColor().equalsIgnoreCase("WHITE") && !joinGameRequest.playerColor().equalsIgnoreCase("BLACK"))) {
+                } else if (joinGameRequest.playerColor == null
+                        || (!joinGameRequest.playerColor().equals("WHITE")
+                        && !joinGameRequest.playerColor().equals("BLACK"))) {
                     res.status(400);
                     res.type("application/json");
                     return serializer.toJson(new Message("Error: unauthorized"));

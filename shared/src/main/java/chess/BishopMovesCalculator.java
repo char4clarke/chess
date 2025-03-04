@@ -3,7 +3,7 @@ package chess;
 import java.util.Collection;
 
 public class BishopMovesCalculator implements PieceMovesCalculator {
-    private static final int[][] directions = {
+    private static final int[][] DIRECTIONS = {
             // possible directions a bishop can move
             {-1, -1}, {-1, 1},
             {1, -1}, {1, 1}
@@ -12,6 +12,6 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece bishop = board.getPiece(myPosition);
-        return MoveHelper.calculateDirectionalMoves(board, myPosition, directions, bishop.getTeamColor());
+        return MoveHelper.calculateDirectionalMoves(board, myPosition, DIRECTIONS, bishop.getTeamColor());
     }
 }

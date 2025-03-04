@@ -9,7 +9,9 @@ public class MoveHelper {
         return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
 
-    public static boolean handleTargetSquare(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition, ChessGame.TeamColor teamColor, Collection<ChessMove> validMoves) {
+    public static boolean handleTargetSquare(ChessBoard board, ChessPosition myPosition,
+                                             ChessPosition newPosition, ChessGame.TeamColor teamColor,
+                                             Collection<ChessMove> validMoves) {
         ChessPiece targetSquare = board.getPiece(newPosition);
         // if move is empty square
         if (targetSquare == null) {
@@ -25,7 +27,8 @@ public class MoveHelper {
     }
 
     // adds all moves in a given direction (all diagonal directions for bishop...) to validMoves
-    public static Collection<ChessMove> calculateDirectionalMoves(ChessBoard board, ChessPosition myPosition, int[][] directions, ChessGame.TeamColor teamColor) {
+    public static Collection<ChessMove> calculateDirectionalMoves(ChessBoard board, ChessPosition myPosition,
+                                                                  int[][] directions, ChessGame.TeamColor teamColor) {
         Collection<ChessMove> validMoves = new ArrayList<>();
 
         for (int[] direction : directions) {
