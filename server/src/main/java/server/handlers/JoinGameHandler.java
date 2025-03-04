@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import service.GameService;
 import service.UserService;
 
+// class to handle the http requests for join game
 public class JoinGameHandler {
 
     private final Gson serializer = new Gson();

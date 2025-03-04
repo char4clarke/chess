@@ -5,6 +5,7 @@ import service.UserService;
 
 import static spark.Spark.post;
 
+// class to handle the http requests for register
 public class RegisterHandler {
     private final Gson serializer = new Gson();
 

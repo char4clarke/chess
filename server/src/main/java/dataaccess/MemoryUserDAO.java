@@ -5,6 +5,7 @@ import model.UserData;
 import java.util.Map;
 import java.util.HashMap;
 
+// concrete implementation of in memory data access
 public class MemoryUserDAO implements UserDAO {
 
     private final Map<String, UserData> userDataMap;

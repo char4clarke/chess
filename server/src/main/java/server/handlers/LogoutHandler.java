@@ -6,6 +6,7 @@ import service.UserService;
 
 import static spark.Spark.delete;
 
+// class to handle the http requests for logout
 public class LogoutHandler {
     private record Message(String message) {}
 

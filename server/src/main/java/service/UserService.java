@@ -13,7 +13,7 @@ public class UserService {
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
-        this.authDAO = authDAO;
+        UserService.authDAO = authDAO;
     }
 
     public record RegisterRequest(String username, String password, String email) {}

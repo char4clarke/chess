@@ -37,20 +37,23 @@ public class UserServiceTests {
     @Order(2)
     @DisplayName("Register User (Negative)")
     public void registerUserNegative() {
+        // assert no username given
         UserService.RegisterRequest request = new UserService.RegisterRequest(null, "password", "email");
         UserService.RegisterResult result = userService.register(request);
         Assertions.assertEquals("Error: Invalid input", result.message());
 
+        // assert no password given
         request = new UserService.RegisterRequest("username", null, "email");
         result = userService.register(request);
         Assertions.assertEquals("Error: Invalid input", result.message());
 
+        // assert no email given
         request = new UserService.RegisterRequest("username", "password", null);
         result = userService.register(request);
         Assertions.assertEquals("Error: Invalid input", result.message());
 
+        // assert username already in use
         request = new UserService.RegisterRequest("username", "password", "email");
-        result = userService.register(request);
         UserService.RegisterResult result1 = userService.register(request);
         Assertions.assertNull(result1.username());
 
@@ -80,16 +83,18 @@ public class UserServiceTests {
         UserService.LoginRequest loginRequest = new UserService.LoginRequest("username", "password");
         UserService.LoginResult loginResult = userService.login(loginRequest);
 
+        // assert user not registered
         Assertions.assertEquals("Error: unauthorized", loginResult.message());
         Assertions.assertNull(loginResult.username());
         Assertions.assertNull(loginResult.authToken());
 
-        UserService.RegisterRequest registerRequest = new UserService.RegisterRequest("username", "pasword", "email");
+        UserService.RegisterRequest registerRequest = new UserService.RegisterRequest("username", "password", "email");
         userService.register(registerRequest);
 
         loginRequest = new UserService.LoginRequest("username", "incorrect");
         loginResult = userService.login(loginRequest);
 
+        // assert incorrect password error
         Assertions.assertEquals("Error: unauthorized", loginResult.message());
         Assertions.assertNull(loginResult.username());
         Assertions.assertNull(loginResult.authToken());

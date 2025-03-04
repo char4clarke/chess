@@ -4,6 +4,7 @@ import static spark.Spark.delete;
 import com.google.gson.Gson;
 import service.ClearService;
 
+// class to handle the http requests for clear
 public class ClearHandler {
     private final Gson serializer = new Gson();
 

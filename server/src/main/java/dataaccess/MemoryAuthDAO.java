@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+// concrete implementation of in memory data access
 public class MemoryAuthDAO implements AuthDAO {
     private final Map<String, AuthData> authDataMap = new HashMap<>();
 

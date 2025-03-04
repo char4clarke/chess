@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// concrete implementation of in memory data access
 public class MemoryGameDAO implements GameDAO {
     private final Map<Integer, GameData> gameDataMap = new HashMap<>();
     private int nextID = 1;

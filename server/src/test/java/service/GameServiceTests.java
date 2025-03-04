@@ -48,6 +48,7 @@ public class GameServiceTests {
         GameService.CreateGameRequest request = new GameService.CreateGameRequest(null);
         GameService.CreateGameResult result = gameService.createGame(request, token);
 
+        // assert no game name given
         Assertions.assertNull(result.gameID());
         Assertions.assertEquals("Error: no game name", result.message());
     }
@@ -78,6 +79,7 @@ public class GameServiceTests {
     public void listGamesNegative() {
         GameService.ListGamesResult result = gameService.listGames();
 
+        // assert no games in list
         Assertions.assertEquals(0, result.games().size());
         Assertions.assertNotNull(result);
     }
@@ -104,6 +106,7 @@ public class GameServiceTests {
     public void getGameNegative() {
         GameService.GetGameResult result = gameService.getGame(new GameService.GetGameRequest(-1));
 
+        // assert invalid gameID
         Assertions.assertNull(result.game());
         Assertions.assertTrue(result.message().contains("Error:"));
     }
@@ -134,36 +137,9 @@ public class GameServiceTests {
         GameService.CreateGameResult createGameResult = gameService.createGame(createGameRequest, token);
         String invalidToken = "invalid";
 
+        // assert invalid token
         GameService.JoinGameResult result = gameService.joinGame(new GameService.JoinGameRequest("WHITE", createGameResult.gameID()), invalidToken);
         Assertions.assertTrue(result.message().contains("Error:"));
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

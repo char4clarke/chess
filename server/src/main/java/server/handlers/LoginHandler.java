@@ -5,6 +5,7 @@ import service.UserService;
 
 import static spark.Spark.post;
 
+// class to handle the http requests for login
 public class LoginHandler {
     private final Gson serializer = new Gson();
 

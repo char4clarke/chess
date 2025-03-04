@@ -5,14 +5,13 @@ import service.GameService;
 
 import static spark.Spark.post;
 
+// class to handle the http requests for create game
 public class CreateGameHandler {
     private final Gson serializer = new Gson();
-    private final GameService gameService;
 
     private record Message(String message) {}
 
     public CreateGameHandler(GameService gameService) {
-        this.gameService = gameService;
 
 
         post("/game", (req, res) -> {
