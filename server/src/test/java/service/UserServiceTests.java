@@ -52,8 +52,9 @@ public class UserServiceTests {
         result = userService.register(request);
         Assertions.assertEquals("Error: Invalid input", result.message());
 
-        // assert username already in use
+        // assert user credentials already in user
         request = new UserService.RegisterRequest("username", "password", "email");
+        userService.register(request);
         UserService.RegisterResult result1 = userService.register(request);
         Assertions.assertNull(result1.username());
 
