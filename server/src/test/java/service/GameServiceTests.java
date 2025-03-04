@@ -34,7 +34,6 @@ public class GameServiceTests {
         GameService.CreateGameRequest request = new GameService.CreateGameRequest("test game");
         GameService.CreateGameResult result = gameService.createGame(request, token);
 
-
         Assertions.assertNotNull(result.gameID());
         Assertions.assertTrue(result.gameID() >= 0);
         Assertions.assertEquals("Success", result.message());
@@ -62,10 +61,10 @@ public class GameServiceTests {
         String token2 = authDAO.createAuthToken("username2");
         String token3 = authDAO.createAuthToken("username3");
 
-
         gameService.createGame(new GameService.CreateGameRequest("test game 1"), token1);
         gameService.createGame(new GameService.CreateGameRequest("test game 2"), token2);
         gameService.createGame(new GameService.CreateGameRequest("test game 3"), token3);
+
         GameService.ListGamesResult result = gameService.listGames();
 
         Assertions.assertNotNull(result.games());
@@ -77,7 +76,6 @@ public class GameServiceTests {
     @Order(4)
     @DisplayName("List Games (Negative)")
     public void listGamesNegative() {
-
         GameService.ListGamesResult result = gameService.listGames();
 
         Assertions.assertEquals(0, result.games().size());

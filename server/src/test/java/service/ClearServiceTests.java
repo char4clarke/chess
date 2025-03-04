@@ -16,14 +16,13 @@ public class ClearServiceTests {
     private static ClearService clearService;
 
     @BeforeEach
-    public void init() throws DataAccessException {
+    public void init() {
         authDAO = new MemoryAuthDAO();
         gameDAO = new MemoryGameDAO();
         userDAO = new MemoryUserDAO();
 
         UserData testUser = new UserData("username", "password", "email");
         userDAO.createUser(testUser);
-        String token = authDAO.createAuthToken("username");
 
         gameDAO.createGame("test game");
 
