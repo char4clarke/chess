@@ -9,8 +9,12 @@ import java.util.UUID;
 import static java.sql.Types.NULL;
 
 public class MySqlAuthDAO implements AuthDAO {
-    public MySqlAuthDAO() throws DataAccessException {
-        configureDatabase();
+    public MySqlAuthDAO() {
+        try {
+            configureDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -65,6 +69,7 @@ public class MySqlAuthDAO implements AuthDAO {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
                     if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
                     else if (param == null) ps.setNull(i + 1, NULL);
                 }
                 return ps.executeUpdate();
@@ -78,11 +83,11 @@ public class MySqlAuthDAO implements AuthDAO {
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS auth (
-                'authToken' VARCHAR(36) NOT NULL,
-                'username' VARCHAR(256) NOT NULL,
-                PRIMARY KEY ('authToken'),
+                authToken CHAR(36) NOT NULL,
+                username VARCHAR(256) NOT NULL,
+                PRIMARY KEY (authToken),
                 INDEX(username)
-            ) ENGINE=InnoDB; DEFAULT CHARSET=utf8mb4 COLLAtE=utf8mb4_0900_ai_ci
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLAtE=utf8mb4_0900_ai_ci
             """
     };
 
@@ -99,7 +104,5 @@ public class MySqlAuthDAO implements AuthDAO {
             throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
-
-
 
 }
