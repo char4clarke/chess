@@ -1,10 +1,12 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +27,44 @@ public class MySqlGameDAO implements GameDAO {
 
     @Override
     public List<GameData> listGames() throws DataAccessException {
+        List<GameData> games = new ArrayList<>();
+        String statement = "SELECT * FROM games";
 
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement);
+             var rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                games.add(readGame(rs));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage());
+        }
+
+        return games;
     }
 
     @Override
     public int createGame(String gameName) throws DataAccessException {
-        return 0;
+        String statement = "INSERT INTO games (gameName) VALUES (?)";
+        return executeUpdate(statement, gameName);
     }
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
+        var statement = "SELECT * FROM games WHERE gameID=?";
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
+            ps.setInt(1, gameID);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return readGame(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage());
+        }
+
         return null;
     }
 
@@ -51,6 +81,18 @@ public class MySqlGameDAO implements GameDAO {
     @Override
     public void updateGame(GameData game) {
 
+    }
+
+    private GameData readGame(ResultSet rs) throws SQLException {
+        int gameID = rs.getInt("gameID");
+        String whiteUsername = rs.getString("whiteUsername");
+        String blackUsername = rs.getString("blackUsername");
+        String gameName = rs.getString("gameName");
+
+        String stateJSONStr = rs.getString("stateJSON");
+        Object stateJSONObj = gson.fromJson(stateJSONStr, Object.class);
+
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, (ChessGame) stateJSONObj);
     }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
