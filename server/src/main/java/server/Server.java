@@ -1,9 +1,6 @@
 package server;
 
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
-import dataaccess.MySqlAuthDAO;
+import dataaccess.*;
 import server.handlers.*;
 import service.ClearService;
 import service.GameService;
@@ -17,9 +14,9 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MySqlUserDAO userDAO = new MySqlUserDAO();
         MySqlAuthDAO authDAO = new MySqlAuthDAO();
-        MemoryGameDAO gameDAO = new MemoryGameDAO();
+        MySqlGameDAO gameDAO = new MySqlGameDAO();
 
         UserService userService = new UserService(userDAO, authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
