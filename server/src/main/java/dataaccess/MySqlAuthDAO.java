@@ -3,6 +3,7 @@ package dataaccess;
 import model.AuthData;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 
 import static java.sql.Types.NULL;
@@ -46,7 +47,10 @@ public class MySqlAuthDAO implements AuthDAO {
 
     @Override
     public String createAuthToken(String username) throws DataAccessException {
-
+        String token = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(token, username);
+        createAuth(authData);
+        return token;
     }
 
 
