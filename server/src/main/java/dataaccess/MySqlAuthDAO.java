@@ -4,31 +4,78 @@ import model.AuthData;
 
 import java.sql.SQLException;
 
+
+import static java.sql.Types.NULL;
+
 public class MySqlAuthDAO implements AuthDAO {
     @Override
     public void createAuth(AuthData auth) throws DataAccessException {
-
+        var statement = "INSERT INTO auth (authToken, username) VALUES(?, ?)";
+        executeUpdate(statement, auth.authToken(), auth.username());
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new AuthData(rs.getString("authToken"), rs.getString("username"));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage());
+        }
         return null;
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-
+        var statement = "DELETE FROM auth WHERE authToken=?";
+        executeUpdate(statement, authToken);
     }
 
     @Override
     public void clear() throws DataAccessException {
-
+        var statement = "TRUNCATE TABLE auth";
+        executeUpdate(statement);
     }
 
     @Override
     public String createAuthToken(String username) throws DataAccessException {
-        return "";
+
     }
+
+
+    private int executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param == null) ps.setNull(i + 1, NULL);
+                }
+                return ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
+
+
+    private final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS auth (
+                'authToken' VARCHAR(36) NOT NULL,
+                'username' VARCHAR(256) NOT NULL,
+                PRIMARY KEY ('authToken'),
+                INDEX(username)
+            ) ENGINE=InnoDB; DEFAULT CHARSET=utf8mb4 COLLAtE=utf8mb4_0900_ai_ci
+            """
+    };
 
 
     private void configureDatabase() throws DataAccessException {
@@ -40,7 +87,7 @@ public class MySqlAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(500, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 
