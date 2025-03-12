@@ -9,6 +9,11 @@ import java.util.UUID;
 import static java.sql.Types.NULL;
 
 public class MySqlAuthDAO implements AuthDAO {
+    public MySqlAuthDAO() throws DataAccessException {
+        configureDatabase();
+    }
+
+
     @Override
     public void createAuth(AuthData auth) throws DataAccessException {
         var statement = "INSERT INTO auth (authToken, username) VALUES(?, ?)";
