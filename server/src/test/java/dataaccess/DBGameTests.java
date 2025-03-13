@@ -60,7 +60,7 @@ public class DBGameTests {
     @Test
     @Order(5)
     @DisplayName("Join Game (Positive)")
-    public void JoinGamePositive() throws DataAccessException {
+    public void joinGamePositive() throws DataAccessException {
         int gameID = gameDAO.createGame("test game");
         gameDAO.joinGame(gameID, "username", "WHITE");
         GameData game = gameDAO.getGame(gameID);
@@ -70,7 +70,7 @@ public class DBGameTests {
     @Test
     @Order(6)
     @DisplayName("Join Game (Negative)")
-    public void JoinGameNegative() throws DataAccessException {
+    public void joinGameNegative() throws DataAccessException {
         try {
             int gameID = gameDAO.createGame("test game");
             gameDAO.joinGame(gameID, "user1", "WHITE");
