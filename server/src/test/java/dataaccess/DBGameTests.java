@@ -54,6 +54,30 @@ public class DBGameTests {
     }
 
 
+    @Test
+    @Order(5)
+    @DisplayName("Join Game (Positive)")
+    public void JoinGamePositive() throws DataAccessException {
+        int gameID = gameDAO.createGame("test game");
+        gameDAO.joinGame(gameID, "username", "WHITE");
+        GameData game = gameDAO.getGame(gameID);
+        Assertions.assertEquals("username", game.whiteUsername());
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Join Game (Negative)")
+    public void JoinGameNegative() throws DataAccessException {
+        try {
+            int gameID = gameDAO.createGame("test game");
+            gameDAO.joinGame(gameID, "user1", "WHITE");
+            gameDAO.joinGame(gameID, "user2", "WHITE");
+        } catch (DataAccessException e) {
+            Assertions.assertTrue(e.getMessage().contains("Error:"));
+        }
+    }
+
+
 
 
 }

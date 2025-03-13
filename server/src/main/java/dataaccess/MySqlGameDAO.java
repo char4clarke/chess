@@ -80,13 +80,15 @@ public class MySqlGameDAO implements GameDAO {
         }
         String statement = "";
         if ("WHITE".equalsIgnoreCase(teamColor)) {
-            if (game.whiteUsername() == null) {
-                statement = "UPDATE games SET whiteUsername=? WHERE gameID=?";
+            if (game.whiteUsername() != null) {
+                throw new DataAccessException("Error: white player already in use");
             }
+            statement = "UPDATE games SET whiteUsername=? WHERE gameID=?";
         } else if ("BLACK".equalsIgnoreCase(teamColor)) {
-            if (game.blackUsername() == null) {
-                statement = "UPDATE games SET blackUsername=? WHERE gameID=?";
+            if (game.blackUsername() != null) {
+                throw new DataAccessException("Error: black player already in use");
             }
+            statement = "UPDATE games SET blackUsername=? WHERE gameID=?";
         } else {
             throw new DataAccessException("Error: invalid team color");
         }
