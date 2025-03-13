@@ -55,6 +55,15 @@ public class MySqlUserDAO implements UserDAO {
         executeUpdate(statement);
     }
 
+    public boolean validateUser(String username, String password) throws DataAccessException {
+        UserData user = getUser(username);
+        if (user == null) {
+            return false;
+        }
+        return verifyPassword(password, user.password());
+
+    }
+
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
