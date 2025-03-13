@@ -4,6 +4,8 @@ package dataaccess;
 import model.GameData;
 import org.junit.jupiter.api.*;
 
+import java.util.List;
+
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DBGameTests {
@@ -77,7 +79,23 @@ public class DBGameTests {
         }
     }
 
+    @Test
+    @Order(7)
+    @DisplayName("List Games (Positive)")
+    public void listGamesPositive() throws DataAccessException {
+        gameDAO.createGame("test game 1");
+        gameDAO.createGame("test game 2");
+        gameDAO.createGame("test game 3");
+        List<GameData> games = gameDAO.listGames();
+        Assertions.assertEquals(3, games.size());
+    }
 
-
+    @Test
+    @Order(8)
+    @DisplayName("List Games (Negative)")
+    public void listGamesNegative() throws DataAccessException {
+        List<GameData> games = gameDAO.listGames();
+        Assertions.assertEquals(0, games.size());
+    }
 
 }
