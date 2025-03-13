@@ -7,6 +7,14 @@ import java.sql.SQLException;
 import static java.sql.Types.NULL;
 
 public class MySqlUserDAO implements UserDAO {
+    public MySqlUserDAO() {
+        try {
+            configureDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void createUser(UserData user) throws DataAccessException {
 
