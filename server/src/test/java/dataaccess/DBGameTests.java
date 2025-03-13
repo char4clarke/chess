@@ -1,6 +1,7 @@
 package dataaccess;
 
 
+import model.GameData;
 import org.junit.jupiter.api.*;
 
 
@@ -34,6 +35,23 @@ public class DBGameTests {
         }
     }
 
+    @Test
+    @Order(3)
+    @DisplayName("Get Game (Positive)")
+    public void getGamePositive() throws DataAccessException {
+        int gameID = gameDAO.createGame("test game");
+        GameData game = gameDAO.getGame(gameID);
+        Assertions.assertNotNull(game);
+        Assertions.assertEquals(gameID, game.gameID());
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("Get Game (Negative)")
+    public void getGameNegative() throws DataAccessException {
+        GameData game = gameDAO.getGame(-1);
+        Assertions.assertNull(game);
+    }
 
 
 
