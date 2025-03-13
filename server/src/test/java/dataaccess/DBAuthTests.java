@@ -17,10 +17,12 @@ public class DBAuthTests {
     @Order(1)
     @DisplayName("Create Auth Token (Positive)")
     public void createAuthTokenPositive() throws DataAccessException {
-        AuthData auth = new AuthData("authToken", "username");
-        authDAO.createAuth(auth);
-        AuthData data = authDAO.getAuth("authToken");
-        Assertions.assertEquals("username", data.username());
+        try {
+            AuthData auth = new AuthData("authToken", "username");
+            authDAO.createAuth(auth);
+        } catch (DataAccessException e) {
+            Assertions.assertTrue(e.getMessage().contains("Error:"));
+        }
     }
 
     @Test
@@ -34,5 +36,23 @@ public class DBAuthTests {
         } catch (DataAccessException e) {
             Assertions.assertTrue(e.getMessage().contains("Error:"));
         }
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("Get Auth Token (Positive)")
+    public void getAuthTokenPositive() throws DataAccessException {
+        AuthData auth = new AuthData("authToken", "username");
+        authDAO.createAuth(auth);
+        AuthData data = authDAO.getAuth("authToken");
+        Assertions.assertEquals("username", data.username());
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("Get Auth Token (Negative)")
+    public void getAuthTokenNegative() throws DataAccessException {
+        AuthData auth = authDAO.getAuth("username");
+        Assertions.assertNull(auth);
     }
 }
