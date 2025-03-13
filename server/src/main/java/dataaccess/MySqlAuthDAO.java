@@ -6,12 +6,13 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 
-import static java.sql.Types.NULL;
+import static dataaccess.DatabaseManager.configureDatabase;
+import static dataaccess.DatabaseManager.executeUpdate;
 
 public class MySqlAuthDAO implements AuthDAO {
     public MySqlAuthDAO() {
         try {
-            configureDatabase();
+            configureDatabase(createStatements);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -78,24 +79,6 @@ public class MySqlAuthDAO implements AuthDAO {
         return token;
     }
 
-
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                return ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-        }
-    }
-
-
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS auth (
@@ -107,18 +90,5 @@ public class MySqlAuthDAO implements AuthDAO {
             """
     };
 
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
-        }
-    }
 
 }
