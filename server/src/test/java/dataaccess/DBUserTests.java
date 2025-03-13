@@ -53,4 +53,24 @@ public class DBUserTests {
         UserData getUser = userDAO.getUser("username");
         Assertions.assertNull(getUser);
     }
+
+    @Test
+    @Order(5)
+    @DisplayName("Validate User (Positive)")
+    public void validateUserPositive() throws DataAccessException {
+        UserData user = new UserData("username", "password", "type");
+        userDAO.createUser(user);
+        boolean isValid = userDAO.validateUser("username", "password");
+        Assertions.assertTrue(isValid);
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Validate User (Negative)")
+    public void validateUserNegative() throws DataAccessException {
+        UserData user = new UserData("username", "password", "type");
+        userDAO.createUser(user);
+        boolean isValid = userDAO.validateUser("username", "wrong");
+        Assertions.assertFalse(isValid);
+    }
 }
