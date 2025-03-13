@@ -4,12 +4,12 @@ import chess.ChessGame;
 
 public record GameData(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
 
-    public GameData setWhiteUsername(String whiteUsername) {
-        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+    public static GameData setWhiteUsername(GameData gameData, String whiteUsername) {
+        return new GameData(gameData.gameID(), whiteUsername, gameData.blackUsername(), gameData.gameName(), gameData.game());
     }
 
-    public GameData setBlackUsername(String blackUsername) {
-        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+    public static GameData setBlackUsername(GameData gameData, String blackUsername) {
+        return new GameData(gameData.gameID(), gameData.whiteUsername(), blackUsername, gameData.gameName(), gameData.game());
     }
 
 }

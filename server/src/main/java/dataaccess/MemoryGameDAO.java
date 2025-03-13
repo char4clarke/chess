@@ -39,9 +39,9 @@ public class MemoryGameDAO implements GameDAO {
         }
 
         if (game.whiteUsername() == null) {
-            game.setWhiteUsername(username);
+            game.setWhiteUsername(game, username);
         } else if (game.blackUsername() == null) {
-            game.setBlackUsername(username);
+            game.setBlackUsername(game, username);
         } else {
             throw new DataAccessException("Error: game is full");
         }
