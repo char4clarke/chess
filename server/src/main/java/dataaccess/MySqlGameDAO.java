@@ -46,6 +46,10 @@ public class MySqlGameDAO implements GameDAO {
 
     @Override
     public int createGame(String gameName) throws DataAccessException {
+        if (gameName == null) {
+            throw new DataAccessException("Error: game name is null");
+        }
+
         String statement = "INSERT INTO games (gameName) VALUES (?)";
         return executeUpdate(statement, gameName);
     }
