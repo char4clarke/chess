@@ -70,17 +70,31 @@ public class MySqlGameDAO implements GameDAO {
 
     @Override
     public void joinGame(int gameID, String username) throws DataAccessException {
-
+        GameData game = getGame(gameID);
+        if (game == null) {
+            throw new DataAccessException("Error: game not found");
+        }
+        String statement;
+        if (game.whiteUsername() == null) {
+            statement = "UPDATE games SET whiteUsername=? WHERE gameID=?";
+        } else if (game.blackUsername() == null) {
+            statement = "UPDATE games SET blackUsername=? WHERE gameID=?";
+        } else {
+            throw new DataAccessException("Error: game is full");
+        }
+        executeUpdate(statement, username, gameID);
     }
 
     @Override
     public void clear() throws DataAccessException {
-
+        var statement = "TRUNCATE TABLE games";
+        executeUpdate(statement);
     }
 
     @Override
-    public void updateGame(GameData game) {
-
+    public void updateGame(GameData game) throws DataAccessException {
+        var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, stateJSON=? WHERE gameID=?";
+        executeUpdate(statement, game.whiteUsername(), game.blackUsername(), gson.toJson(game.game()), game.gameID());
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {
