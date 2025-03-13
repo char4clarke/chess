@@ -73,4 +73,18 @@ public class DBUserTests {
         boolean isValid = userDAO.validateUser("username", "wrong");
         Assertions.assertFalse(isValid);
     }
+
+    @Test
+    @Order(7)
+    @DisplayName("Clear User Data")
+    public void clearUserData() throws DataAccessException {
+        userDAO.createUser(new UserData("username1", "password1", "type1"));
+        userDAO.createUser(new UserData("username2", "password2", "type2"));
+        userDAO.createUser(new UserData("username3", "password3", "type3"));
+
+        userDAO.clear();
+        Assertions.assertNull(userDAO.getUser("username1"));
+        Assertions.assertNull(userDAO.getUser("username2"));
+        Assertions.assertNull(userDAO.getUser("username3"));
+    }
 }
