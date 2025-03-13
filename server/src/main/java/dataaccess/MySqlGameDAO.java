@@ -4,8 +4,6 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -103,11 +101,6 @@ public class MySqlGameDAO implements GameDAO {
         executeUpdate(statement);
     }
 
-    @Override
-    public void updateGame(GameData game) throws DataAccessException {
-        var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, stateJSON=? WHERE gameID=?";
-        executeUpdate(statement, game.whiteUsername(), game.blackUsername(), gson.toJson(game.game()), game.gameID());
-    }
 
     private GameData readGame(ResultSet rs) throws SQLException {
         int gameID = rs.getInt("gameID");
