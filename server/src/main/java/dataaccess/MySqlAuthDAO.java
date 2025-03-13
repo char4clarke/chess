@@ -17,9 +17,25 @@ public class MySqlAuthDAO implements AuthDAO {
         }
     }
 
+    private boolean tokenExists(String token) throws DataAccessException {
+        String statement = "SELECT 1 FROM auth WHERE authToken=?";
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
+            ps.setString(1, token);
+            try (var rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage());
+        }
+    }
+
 
     @Override
     public void createAuth(AuthData auth) throws DataAccessException {
+        if (tokenExists(auth.authToken())) {
+            throw new DataAccessException("Error: token already in use");
+        }
         var statement = "INSERT INTO auth (authToken, username) VALUES(?, ?)";
         executeUpdate(statement, auth.authToken(), auth.username());
     }
