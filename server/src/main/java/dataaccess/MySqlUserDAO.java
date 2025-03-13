@@ -55,6 +55,7 @@ public class MySqlUserDAO implements UserDAO {
         executeUpdate(statement);
     }
 
+    @Override
     public boolean validateUser(String username, String password) throws DataAccessException {
         UserData user = getUser(username);
         if (user == null) {
@@ -87,7 +88,7 @@ public class MySqlUserDAO implements UserDAO {
                 username VARCHAR(256) NOT NULL,
                 hashedPassword VARCHAR(256) NOT NULL,
                 type VARCHAR(50) NOT NULL,
-                PRIMARY KEY (username),
+                PRIMARY KEY (username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLAtE=utf8mb4_0900_ai_ci
             """
     };
