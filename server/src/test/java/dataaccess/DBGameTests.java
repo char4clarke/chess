@@ -1,6 +1,7 @@
 package dataaccess;
 
 
+import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;
 
@@ -96,6 +97,19 @@ public class DBGameTests {
     public void listGamesNegative() throws DataAccessException {
         List<GameData> games = gameDAO.listGames();
         Assertions.assertEquals(0, games.size());
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Clear Game Data")
+    public void clearGameData() throws DataAccessException {
+        gameDAO.createGame("test game 1");
+        gameDAO.createGame("test game 2");
+        gameDAO.createGame("test game 3");
+        Assertions.assertEquals(3, gameDAO.listGames().size());
+
+        gameDAO.clear();
+        Assertions.assertEquals(0, gameDAO.listGames().size());
     }
 
 }
