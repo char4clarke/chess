@@ -3,6 +3,7 @@ package dataaccess;
 import model.UserData;
 
 import java.sql.SQLException;
+import org.mindrot.jbcrypt.BCrypt;
 
 import static java.sql.Types.NULL;
 
@@ -13,6 +14,14 @@ public class MySqlUserDAO implements UserDAO {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    private boolean verifyPassword(String password, String hashed) {
+        return BCrypt.checkpw(password, hashed);
     }
 
     @Override
