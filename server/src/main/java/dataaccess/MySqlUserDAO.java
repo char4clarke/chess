@@ -26,17 +26,33 @@ public class MySqlUserDAO implements UserDAO {
 
     @Override
     public void createUser(UserData user) throws DataAccessException {
-
+        String hashedPassword = hashPassword(user.password());
+        var statement = "INSERT INTO users (username, hashedPassword, type) VALUES(?, ?, ?)";
+        executeUpdate(statement, user.username(), hashedPassword, user.type());
     }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, hashedPassword, type FROM users WHERE username=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new UserData(rs.getString("username"), rs.getString("hashedPassword"), rs.getString("type"));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage());
+        }
         return null;
     }
 
     @Override
     public void clear() throws DataAccessException {
-
+        var statement = "TRUNCATE TABLE users";
+        executeUpdate(statement);
     }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
@@ -58,12 +74,11 @@ public class MySqlUserDAO implements UserDAO {
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS auth (
+            CREATE TABLE IF NOT EXISTS users (
                 username VARCHAR(256) NOT NULL,
-                password VARCHAR(256) NOT NULL,
-                email VARCHAR (256),
+                hashedPassword VARCHAR(256) NOT NULL,
+                type VARCHAR(50) NOT NULL,
                 PRIMARY KEY (username),
-                INDEX(email)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLAtE=utf8mb4_0900_ai_ci
             """
     };
