@@ -135,7 +135,7 @@ public class MySqlGameDAO implements GameDAO {
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS auth (
+            CREATE TABLE IF NOT EXISTS games (
                 gameID INT AUTO_INCREMENT PRIMARY KEY,
                 whiteUsername VARCHAR(255),
                 blackUsername VARCHAR(255),
