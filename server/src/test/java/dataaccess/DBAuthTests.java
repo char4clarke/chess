@@ -46,6 +46,7 @@ public class DBAuthTests {
         authDAO.createAuth(auth);
         AuthData data = authDAO.getAuth("authToken");
         Assertions.assertEquals("username", data.username());
+        Assertions.assertEquals("authToken", data.authToken());
     }
 
     @Test
@@ -54,5 +55,27 @@ public class DBAuthTests {
     public void getAuthTokenNegative() throws DataAccessException {
         AuthData auth = authDAO.getAuth("username");
         Assertions.assertNull(auth);
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Delete Auth Token (Positive)")
+    public void deleteAuthPositive() throws DataAccessException {
+        AuthData auth = new AuthData("authToken", "username");
+        authDAO.createAuth(auth);
+        authDAO.deleteAuth("authToken");
+        AuthData data = authDAO.getAuth("authToken");
+        Assertions.assertNull(data);
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Delete Auth Token (Negative)")
+    public void deleteAuthNegative() throws DataAccessException {
+        try {
+            authDAO.deleteAuth("authToken");
+        } catch (DataAccessException e) {
+            Assertions.assertTrue(e.getMessage().contains("Error:"));
+        }
     }
 }
