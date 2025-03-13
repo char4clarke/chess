@@ -78,4 +78,19 @@ public class DBAuthTests {
             Assertions.assertTrue(e.getMessage().contains("Error:"));
         }
     }
+
+
+    @Test
+    @Order(7)
+    @DisplayName("Clear Auth Data")
+    public void clearAuthData() throws DataAccessException {
+        authDAO.createAuth(new AuthData("authToken1", "username1"));
+        authDAO.createAuth(new AuthData("authToken2", "username2"));
+        authDAO.createAuth(new AuthData("authToken3", "username3"));
+        authDAO.clear();
+
+        Assertions.assertNull(authDAO.getAuth("authToken1"));
+        Assertions.assertNull(authDAO.getAuth("authToken2"));
+        Assertions.assertNull(authDAO.getAuth("authToken3"));
+    }
 }
