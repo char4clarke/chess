@@ -67,11 +67,11 @@ public class UserService {
         }
 
         try {
-            UserData user = null;
-            user = userDAO.getUser(loginRequest.username);
+            boolean isValid = userDAO.validateUser(loginRequest.username(), loginRequest.password());
+            UserData user = userDAO.getUser(loginRequest.username);
             if (user == null) {
                 return new LoginResult(null, null, "Error: unauthorized");
-            } else if (!user.password().equals(loginRequest.password)) {
+            } else if (!isValid) {
                 return new LoginResult(null, null, "Error: unauthorized");
             }
 

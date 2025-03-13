@@ -29,4 +29,13 @@ public class MemoryUserDAO implements UserDAO {
         userDataMap.clear();
     }
 
+    @Override
+    public boolean validateUser(String username, String password) throws DataAccessException {
+        UserData user = userDataMap.get(username);
+        if (user == null) {
+            return false;
+        }
+        return user.password().equals(password);
+    }
+
 }
