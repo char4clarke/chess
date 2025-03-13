@@ -32,7 +32,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void joinGame(int gameID, String username) throws DataAccessException {
+    public void joinGame(int gameID, String username, String teamColor) throws DataAccessException {
         GameData game = gameDataMap.get(gameID);
         if (game == null) {
             throw new DataAccessException("Error: game not found");

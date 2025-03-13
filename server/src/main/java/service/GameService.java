@@ -111,12 +111,12 @@ public class GameService {
                 if (game.whiteUsername() != null) {
                     return new JoinGameResult("Error: already taken");
                 }
-                gameDAO.joinGame(joinGameRequest.gameID, username);
+                gameDAO.joinGame(joinGameRequest.gameID, username, joinGameRequest.playerColor());
             } else if (joinGameRequest.playerColor().equalsIgnoreCase("BLACK")) {
                 if (game.blackUsername() != null) {
                     return new JoinGameResult("Error: already taken");
                 }
-                gameDAO.joinGame(joinGameRequest.gameID, username);
+                gameDAO.joinGame(joinGameRequest.gameID, username, joinGameRequest.playerColor());
             } else {
                 return new JoinGameResult("Error: invalid color");
             }

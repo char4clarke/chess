@@ -69,19 +69,24 @@ public class MySqlGameDAO implements GameDAO {
     }
 
     @Override
-    public void joinGame(int gameID, String username) throws DataAccessException {
+    public void joinGame(int gameID, String username, String teamColor) throws DataAccessException {
         GameData game = getGame(gameID);
         if (game == null) {
             throw new DataAccessException("Error: game not found");
         }
-        String statement;
-        if (game.whiteUsername() == null) {
-            statement = "UPDATE games SET whiteUsername=? WHERE gameID=?";
-        } else if (game.blackUsername() == null) {
-            statement = "UPDATE games SET blackUsername=? WHERE gameID=?";
+        String statement = "";
+        if ("WHITE".equalsIgnoreCase(teamColor)) {
+            if (game.whiteUsername() == null) {
+                statement = "UPDATE games SET whiteUsername=? WHERE gameID=?";
+            }
+        } else if ("BLACK".equalsIgnoreCase(teamColor)) {
+            if (game.blackUsername() == null) {
+                statement = "UPDATE games SET blackUsername=? WHERE gameID=?";
+            }
         } else {
-            throw new DataAccessException("Error: game is full");
+            throw new DataAccessException("Error: invalid team color");
         }
+
         executeUpdate(statement, username, gameID);
     }
 
