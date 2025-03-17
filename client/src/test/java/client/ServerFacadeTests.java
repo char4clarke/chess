@@ -13,6 +13,12 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+        facade = new ServerFacade(port);
+    }
+
+    @BeforeEach
+    void clearDataBase() {
+        facade.clear();
     }
 
     @AfterAll
@@ -26,4 +32,12 @@ public class ServerFacadeTests {
         Assertions.assertTrue(true);
     }
 
+
+
+
+    @Test
+    public void registerTest() throws Exception {
+        var authData = facade.register("player1", "password", "p1@email.com");
+        Assertions.assertTrue(authData.authToken().length() > 10);
+    }
 }
