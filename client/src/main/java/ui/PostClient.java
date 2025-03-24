@@ -36,5 +36,18 @@ public class PostClient {
         handleLogout();
     }
 
-    
+    private void executeCommand(String command) throws ResponseException {
+        String[] tokens = command.split(" ");
+        String cmd = tokens[0].toLowerCase();
+
+        switch (cmd) {
+            case "help" -> displayHelp();
+            case "create" -> handleCreateGame(tokens);
+            case "list" -> handleListGames();
+            case "join" -> handleJoinGame(tokens);
+            case "observe" -> {};
+            case "logout" -> {};
+            default -> System.out.println("Unknown command. Type 'help' for possible commands.");
+        }
+    }
 }
