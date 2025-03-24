@@ -47,7 +47,7 @@ public class PostClient {
             case "create" -> handleCreateGame(tokens);
             case "list" -> handleListGames();
             case "join" -> handleJoinGame(tokens);
-            case "observe" -> {};
+            case "observe" -> handleObserveGame(tokens);
             case "logout" -> {};
             default -> System.out.println("Unknown command. Type 'help' for possible commands.");
         }
@@ -135,5 +135,9 @@ public class PostClient {
         } catch (NumberFormatException e) {
             System.out.println("Error: gameID must be a number.");
         }
+    }
+
+    private void handleObserveGame(String[] tokens) {
+        System.out.println("Observing functionality has not yet been implemented.");
     }
 }
