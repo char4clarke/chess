@@ -50,4 +50,16 @@ public class PostClient {
             default -> System.out.println("Unknown command. Type 'help' for possible commands.");
         }
     }
+
+    private void displayHelp() {
+        System.out.println("""
+                create <NAME>           - a game
+                list                    - games
+                join <ID> [WHITE|BLACK] - a game
+                observe <ID>            - a game
+                logout                  - when you are done
+                quit                    - playing chess
+                help                    - with possible commands
+                """);
+    }
 }
