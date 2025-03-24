@@ -1,6 +1,7 @@
 package ui;
 
 import exception.ResponseException;
+import model.GameData;
 import service.GameService.*;
 
 import java.util.HashMap;
@@ -80,4 +81,31 @@ public class PostClient {
             System.out.println(result.message());
         }
     }
+
+    private void handleListGames() throws ResponseException {
+        ListGamesResult result = serverFacade.listGames(authToken);
+        if (result.message().contains("Success")) {
+            List<GameData> games = result.games();
+            gameIDMap.clear();
+
+            if (games.isEmpty()) {
+                System.out.println("No games currently.");
+                return;
+            }
+
+            System.out.println("Available games:");
+            int index = 1;
+            for (GameData game : games) {
+                gameIDMap.put(index, game.gameID());
+                System.out.printf("%d. %s (White: %s, Black: %s)%n",
+                        index++, game.gameName(),
+                        Optional.ofNullable(game.whiteUsername()).orElse("None"),
+                        Optional.ofNullable(game.blackUsername()).orElse("None"));
+            }
+        } else {
+            System.out.println(result.message());
+        }
+    }
+
+
 }
