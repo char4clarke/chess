@@ -1,6 +1,7 @@
 package ui;
 
 import exception.ResponseException;
+import service.GameService.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,5 +62,22 @@ public class PostClient {
                 quit                    - playing chess
                 help                    - with possible commands
                 """);
+    }
+
+    private void handleCreateGame(String[] tokens) throws ResponseException {
+        if (tokens.length != 2) {
+            System.out.println("Error: Invalid arguments. create expects: create <NAME>");
+            return;
+        }
+
+        String gameName = tokens[1];
+        CreateGameRequest request = new CreateGameRequest(gameName);
+        CreateGameResult result = serverFacade.createGame(request, authToken);
+
+        if (result.message().contains("Success")) {
+            System.out.println("Game created successfully with ID: " + result.gameID());
+        } else {
+            System.out.println(result.message());
+        }
     }
 }
