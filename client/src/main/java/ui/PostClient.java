@@ -107,5 +107,33 @@ public class PostClient {
         }
     }
 
+    private void handleJoinGame(String[] tokens) throws ResponseException {
+        if (tokens.length != 3) {
+            System.out.println("Error: Invalid arguments. join expects: join <ID> [WHITE|BlACK]");
+            return;
+        }
 
+        try {
+            int gameIndex = Integer.parseInt(tokens[1]);
+            String playerColor = tokens[2].toUpperCase();
+
+            if (!gameIDMap.containsKey(gameIndex)) {
+                System.out.println("Error: Invalid gameID.");
+                return;
+            }
+
+            int gameID = gameIDMap.get(gameIndex);
+            JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
+            JoinGameResult result = serverFacade.joinGame(request, authToken);
+
+            if (result.message().contains("Success")) {
+                System.out.printf("Joined game %d as %s.%n", gameID, playerColor);
+                ChessBoardDrawing.drawChessboard(playerColor.equalsIgnoreCase("BLACK"));
+            } else {
+                System.out.println(result.message());
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Error: gameID must be a number.");
+        }
+    }
 }
