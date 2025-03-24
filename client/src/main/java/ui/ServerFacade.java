@@ -5,6 +5,9 @@ import com.google.gson.JsonObject;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
+import service.ClearService.*;
+import service.GameService.*;
+import service.UserService.*;
 
 import java.io.*;
 import java.net.*;
@@ -14,61 +17,48 @@ public class ServerFacade {
     private final Gson gson = new Gson();
 
     public ServerFacade(String url) {
-        serverUrl = url;
+        this.serverUrl = url;
     }
 
-    public void clearDatabase() throws ResponseException {
-        makeRequest("DELETE", "/db", null, null);
+    public ClearResult clear() throws ResponseException {
+        return makeRequest("DELETE", "/db", null, ClearResult.class);
     }
 
-    public AuthData register(String username, String password, String email) throws ResponseException {
-        var request = new JsonObject();
-        request.addProperty("username", username);
-        request.addProperty("password", password);
-        request.addProperty("email", email);
-        return makeRequest("POST", "/user", request, AuthData.class);
+    public RegisterResult register(RegisterRequest request) throws ResponseException {
+        return makeRequest("POST", "/user", request, RegisterResult.class);
     }
 
-    public AuthData login(String username, String password) throws ResponseException {
-        var request = new JsonObject();
-        request.addProperty("username", username);
-        request.addProperty("password", password);
-        return makeRequest("POST", "/session", request, AuthData.class);
+    public LoginResult login(LoginRequest request) throws ResponseException {
+        return makeRequest("POST", "/session", request, LoginResult.class);
     }
 
-    public void logout(String authToken) throws ResponseException {
-        if (authToken != null) {
+    public void logout(LogoutRequest request) throws ResponseException {
+        if (request.authToken() != null) {
             makeRequest("DELETE", "/session", null, null);
         } else {
             throw new ResponseException(401, "Error: unauthorized");
         }
     }
 
-    public GameData[] listGames(String authToken) throws ResponseException {
+    public ListGamesResult listGames(String authToken) throws ResponseException {
         if (authToken != null) {
-            return makeRequest("GET", "/game", null, GameData[].class);
+            return makeRequest("GET", "/game", null, ListGamesResult.class);
         } else {
             throw new ResponseException(401, "Error: unauthorized");
         }
     }
 
-    public int createGame(String authToken, String gameName) throws ResponseException {
+    public CreateGameResult createGame(CreateGameRequest request, String authToken) throws ResponseException {
         if (authToken != null) {
-            var request = new JsonObject();
-            request.addProperty("gameName", gameName);
-            var response = makeRequest("POST", "/game", request, JsonObject.class);
-            return response.get("gameID").getAsInt();
+            return makeRequest("POST", "/game", request, CreateGameResult.class);
         } else {
             throw new ResponseException(401, "Error: unauthorized");
         }
     }
 
-    public void joinGame(String authToken, int gameID, String playerColor) throws ResponseException {
+    public JoinGameResult joinGame(JoinGameRequest request, String authToken) throws ResponseException {
         if (authToken != null) {
-            var request = new JsonObject();
-            request.addProperty("gameID", gameID);
-            request.addProperty("playerColor", playerColor);
-            makeRequest("PUT", "/game", request, null);
+            return makeRequest("PUT", "/game", request, null);
         } else {
             throw new ResponseException(401, "Error: unauthorized");
         }
