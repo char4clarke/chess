@@ -1,7 +1,10 @@
 package ui;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import exception.ResponseException;
 import model.AuthData;
+import model.GameData;
 
 import java.io.*;
 import java.net.*;
@@ -14,7 +17,56 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public void clearDatabase() throws ResponseException {
+        makeRequest("DELETE", "/db", null, null);
+    }
 
+    public AuthData register(String username, String password, String email) throws ResponseException {
+        var request = new JsonObject();
+        request.addProperty("username", username);
+        request.addProperty("password", password);
+        request.addProperty("email", email);
+        return makeRequest("POST", "/user", request, AuthData.class);
+    }
+
+    public AuthData login(String username, String password) throws ResponseException {
+        var request = new JsonObject();
+        request.addProperty("username", username);
+        request.addProperty("password", password);
+        return makeRequest("POST", "/session", request, AuthData.class);
+    }
+
+    public void logout(String authToken) throws ResponseException {
+        if (authToken != null) {
+            makeRequest("DELETE", "/session", null, null);
+        }
+    }
+
+    public GameData[] listGames(String authToken) throws ResponseException {
+        if (authToken != null) {
+            return makeRequest("GET", "/game", null, GameData[].class);
+        }
+        return new GameData[0];
+    }
+
+    public int createGame(String authToken, String gameName) throws ResponseException {
+        var request = new JsonObject();
+        request.addProperty("gameName", gameName);
+        if (authToken != null) {
+            var response = makeRequest("POST", "/game", request, JsonObject.class);
+            return response.get("gameID").getAsInt();
+        }
+        return 0;
+    }
+
+    public void joinGame(String authToken, int gameID, String playerColor) throws ResponseException {
+        var request = new JsonObject();
+        request.addProperty("gameID", gameID);
+        request.addProperty("playerColor", playerColor);
+        if (authToken != null) {
+            makeRequest("PUT", "/game", request, null);
+        }
+    }
 
 
 
