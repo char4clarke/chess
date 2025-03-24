@@ -32,6 +32,19 @@ public class PreClient {
     }
 
 
+    private void executeCommand(String command) throws ResponseException {
+        String[] tokens = command.toLowerCase().split(" ");
+        String cmd = tokens[0].toLowerCase();
+
+        switch (cmd) {
+            case "help" -> displayHelp();
+            case "register" -> handleRegister(tokens);
+            case "login" -> handleLogin(tokens);
+            case "quit" -> {};
+            default -> System.out.println("Unknown command. Type 'help' for possible commands.");
+        }
+    }
+
 
 
 
