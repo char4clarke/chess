@@ -45,6 +45,15 @@ public class PreClient {
         }
     }
 
+    private void displayHelp() {
+        System.out.println("""
+                register <USERNAME> <PASSWORD> <EMAIL>  - to create an account
+                login <USERNAME> <PASSWORD>             - to play chess
+                quit                                    - playing chess
+                help                                    - with possible commands
+                """);
+    }
+
 
 
 
