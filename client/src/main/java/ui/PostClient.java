@@ -3,6 +3,7 @@ package ui;
 import exception.ResponseException;
 import model.GameData;
 import service.GameService.*;
+import service.UserService.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -139,5 +140,16 @@ public class PostClient {
 
     private void handleObserveGame(String[] tokens) {
         System.out.println("Observing functionality has not yet been implemented.");
+    }
+
+    private void handleLogout() {
+        try {
+            LogoutRequest request = new LogoutRequest(authToken);
+            serverFacade.logout(request);
+            System.out.println("Logged out successfully!");
+            new PreClient(serverFacade).run();
+        } catch (ResponseException e) {
+            System.out.println("Error during logout: " + e.getMessage());
+        }
     }
 }
