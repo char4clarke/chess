@@ -56,7 +56,7 @@ public class PreClient {
 
     private void handleRegister(String[] tokens) throws ResponseException {
         if (tokens.length != 4) {
-            System.out.println("Error: Invalid argument. Usage: register <USERNAME> <PASSWORD> <EMAIL>");
+            System.out.println("Error: Invalid argument. register expects: register <USERNAME> <PASSWORD> <EMAIL>");
             return;
         }
 
@@ -76,7 +76,23 @@ public class PreClient {
     }
 
 
+    private void handleLogin(String[] tokens) throws ResponseException {
+        if (tokens.length != 3) {
+            System.out.println("Error: Invalid argument. login expects: login <USERNAME> <PASSWORD>");
+            return;
+        }
 
+        String username = tokens[1];
+        String password = tokens[2];
 
+        LoginRequest request = new LoginRequest(username, password);
+        LoginResult result = serverFacade.login(request);
 
+        if (result.message().contains("Success")) {
+            System.out.println("Login successful! Welcome back, " + result.username());
+            new PostClient(serverFacade, result.authToken()).run();
+        } else {
+            System.out.println(result.message());
+        }
+    }
 }
