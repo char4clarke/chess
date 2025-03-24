@@ -39,32 +39,38 @@ public class ServerFacade {
     public void logout(String authToken) throws ResponseException {
         if (authToken != null) {
             makeRequest("DELETE", "/session", null, null);
+        } else {
+            throw new ResponseException(401, "Error: unauthorized");
         }
     }
 
     public GameData[] listGames(String authToken) throws ResponseException {
         if (authToken != null) {
             return makeRequest("GET", "/game", null, GameData[].class);
+        } else {
+            throw new ResponseException(401, "Error: unauthorized");
         }
-        return new GameData[0];
     }
 
     public int createGame(String authToken, String gameName) throws ResponseException {
-        var request = new JsonObject();
-        request.addProperty("gameName", gameName);
         if (authToken != null) {
+            var request = new JsonObject();
+            request.addProperty("gameName", gameName);
             var response = makeRequest("POST", "/game", request, JsonObject.class);
             return response.get("gameID").getAsInt();
+        } else {
+            throw new ResponseException(401, "Error: unauthorized");
         }
-        return 0;
     }
 
     public void joinGame(String authToken, int gameID, String playerColor) throws ResponseException {
-        var request = new JsonObject();
-        request.addProperty("gameID", gameID);
-        request.addProperty("playerColor", playerColor);
         if (authToken != null) {
+            var request = new JsonObject();
+            request.addProperty("gameID", gameID);
+            request.addProperty("playerColor", playerColor);
             makeRequest("PUT", "/game", request, null);
+        } else {
+            throw new ResponseException(401, "Error: unauthorized");
         }
     }
 
