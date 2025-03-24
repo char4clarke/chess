@@ -54,6 +54,28 @@ public class PreClient {
                 """);
     }
 
+    private void handleRegister(String[] tokens) throws ResponseException {
+        if (tokens.length != 4) {
+            System.out.println("Error: Invalid argument. Usage: register <USERNAME> <PASSWORD> <EMAIL>");
+            return;
+        }
+
+        String username = tokens[1];
+        String password = tokens[2];
+        String email = tokens[3];
+
+        RegisterRequest request = new RegisterRequest(username, password, email);
+        RegisterResult result = serverFacade.register(request);
+
+        if (result.message().contains("Success")) {
+            System.out.println("Registration successful! Welcome, " + result.username());
+            new PostClient(serverFacade, result.authToken()).run();
+        } else {
+            System.out.println(result.message());
+        }
+    }
+
+
 
 
 
