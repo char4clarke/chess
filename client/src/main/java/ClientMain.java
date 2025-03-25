@@ -1,4 +1,3 @@
-import chess.*;
 import dataaccess.AuthDAO;
 import dataaccess.MySqlAuthDAO;
 import dataaccess.MySqlUserDAO;
@@ -14,6 +13,6 @@ public class ClientMain {
         AuthDAO authDAO = new MySqlAuthDAO();
         UserService userService = new UserService(userDAO, authDAO);
         ServerFacade serverFacade = new ServerFacade(serverUrl);
-        new PreClient(serverFacade, userService).run();
+        new PreClient(serverFacade).run();
     }
 }

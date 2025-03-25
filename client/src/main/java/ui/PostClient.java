@@ -1,11 +1,7 @@
 package ui;
 
-import dataaccess.DataAccessException;
 import exception.ResponseException;
-import clientModel.GameData;
-import service.GameService.*;
-import service.UserService;
-import service.UserService.*;
+import ui.ServerFacade.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,14 +10,12 @@ import java.util.*;
 
 public class PostClient implements ChessClient {
     private final ServerFacade serverFacade;
-    private final UserService userService;
     private final String authToken;
     private final Map<Integer, Integer> gameIDMap = new HashMap<>();
 
-    public PostClient(ServerFacade serverFacade, UserService userService, String authToken) {
+    public PostClient(ServerFacade serverFacade, String authToken) {
         this.serverFacade = serverFacade;
         this.authToken = authToken;
-        this.userService = userService;
     }
 
     @Override
@@ -71,47 +65,19 @@ public class PostClient implements ChessClient {
     }
 
     private void handleCreateGame(String[] tokens) throws ResponseException {
-        System.out.println("handle create game started");
         if (tokens.length != 2) {
             System.out.println("Error: Invalid arguments. create expects: create <NAME>");
             return;
         }
 
         String gameName = tokens[1];
-        System.out.println("Creating game with name: " + gameName);
         CreateGameRequest request = new CreateGameRequest(gameName);
-        System.out.println("Created CreateGameRequest: " + request);
-        try {
-            if (authToken == null) {
-                System.out.println("Error: Unauthorized - no auth token provided.");
-                return;
-            }
-            try {
-                userService.validateAuthToken(authToken);
-                System.out.println("auth token validated");
-            } catch (DataAccessException e) {
-                System.out.println("auth token NOT valid");
-                throw new RuntimeException(e);
-            }
-            CreateGameResult result = serverFacade.createGame(request, authToken);
-            System.out.println("Received result from createGame: " + result);
-
-            if (result != null) {
-                System.out.println("Game ID: " + result.gameID());
-                System.out.println("Result Message: " + result.message());
-            }
-
-            if (result != null && result.message() != null && result.message().contains("Success")) {
-                System.out.println("Game created successfully with ID: " + result.gameID());
-                handleListGames();
-            } else {
-                System.out.println("Error: " + (result != null ? result.message() : "Unknown error"));
-            }
-        } catch (ResponseException e) {
-            System.out.println("Error during game creation: " + e.getMessage());
+        CreateGameResult result = serverFacade.createGame(request, authToken);
+        if (result != null && result.gameID() != null) {
+            System.out.println("Game created successfully with ID: " + result.gameID());
+        } else {
+            System.out.println("Error: Failed to create game");
         }
-
-
     }
 
     private void handleListGames() throws ResponseException {
@@ -182,7 +148,7 @@ public class PostClient implements ChessClient {
             LogoutRequest request = new LogoutRequest(authToken);
             serverFacade.logout(request);
             System.out.println("Logged out successfully!");
-            new PreClient(serverFacade, userService).run();
+            new PreClient(serverFacade).run();
         } catch (ResponseException e) {
             System.out.println("Error: " + e.getMessage());
         }

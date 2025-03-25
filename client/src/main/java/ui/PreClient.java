@@ -1,18 +1,15 @@
 package ui;
 
 import exception.ResponseException;
-import service.UserService;
-import service.UserService.*;
+import ui.ServerFacade.*;
 
 import java.util.Scanner;
 
 public class PreClient implements ChessClient {
     private final ServerFacade serverFacade;
-    private final UserService userService;
 
-    public PreClient(ServerFacade serverFacade, UserService userService) {
+    public PreClient(ServerFacade serverFacade) {
         this.serverFacade = serverFacade;
-        this.userService = userService;
     }
 
     @Override
@@ -73,7 +70,7 @@ public class PreClient implements ChessClient {
 
         if (result.message().contains("Success")) {
             System.out.println("Registration successful! Welcome, " + result.username());
-            new PostClient(serverFacade, userService, result.authToken()).run();
+            new PostClient(serverFacade, result.authToken()).run();
         } else {
             System.out.println(result.message());
         }
@@ -94,7 +91,7 @@ public class PreClient implements ChessClient {
 
         if (result.message().contains("Success")) {
             System.out.println("Login successful! Welcome back, " + result.username());
-            new PostClient(serverFacade, userService, result.authToken()).run();
+            new PostClient(serverFacade, result.authToken()).run();
         } else {
             System.out.println(result.message());
         }

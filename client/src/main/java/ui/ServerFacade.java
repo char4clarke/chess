@@ -2,21 +2,46 @@ package ui;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import service.ClearService.*;
-import service.GameService.*;
-import service.UserService.*;
+import model.GameData;
 
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class ServerFacade {
+
+
     private final String serverUrl;
     private final Gson gson = new Gson();
 
     public ServerFacade(String url) {
         this.serverUrl = url;
     }
+
+    public record AuthData(String username, String authToken) {}
+    public record GameData(int gameID, String gameName, String whiteUsername, String blackUsername) {}
+    public record ClearResult(String message) {}
+
+    public record CreateGameRequest(String gameName) {}
+    public record CreateGameResult(Integer gameID, String message) {}
+
+    public record ListGamesResult(List<model.GameData> games, String message) {}
+
+    public record JoinGameRequest(String playerColor, int gameID) {}
+    public record JoinGameResult(String message) {
+        public JoinGameResult {
+            if (message == null) message = "";
+        }
+    }
+
+    public record RegisterRequest(String username, String password, String email) {}
+    public record RegisterResult(String username, String authToken, String message) {}
+
+    public record LoginRequest(String username, String password) {}
+    public record LoginResult(String username, String authToken, String message) {}
+
+    public record LogoutRequest(String authToken) {}
 
     public ClearResult clear() throws ResponseException {
         return makeRequest("DELETE", "/db", null, null, ClearResult.class);
