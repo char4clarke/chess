@@ -2,8 +2,6 @@ package ui;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import model.AuthData;
-import model.GameData;
 import service.ClearService.*;
 import service.GameService.*;
 import service.UserService.*;

@@ -2,7 +2,7 @@ package ui;
 
 import dataaccess.DataAccessException;
 import exception.ResponseException;
-import model.GameData;
+import clientModel.GameData;
 import service.GameService.*;
 import service.UserService;
 import service.UserService.*;
@@ -117,7 +117,7 @@ public class PostClient implements ChessClient {
     private void handleListGames() throws ResponseException {
         ListGamesResult result = serverFacade.listGames(authToken);
         if (result.message().contains("Success")) {
-            List<GameData> games = result.games();
+            List<model.GameData> games = result.games();
             gameIDMap.clear();
 
             if (games == null || games.isEmpty()) {
@@ -127,7 +127,7 @@ public class PostClient implements ChessClient {
 
             System.out.println("Available games:");
             int index = 1;
-            for (GameData game : games) {
+            for (model.GameData game : games) {
                 gameIDMap.put(index, game.gameID());
                 System.out.printf("%d. %s (White: %s, Black: %s)%n",
                         index++, game.gameName(),
