@@ -88,7 +88,7 @@ public class ServerFacade {
             connection.connect();
 
             int statusCode = connection.getResponseCode();
-            System.out.println("HTTP Status: " + statusCode); // Debug log
+            // System.out.println("HTTP Status: " + statusCode); // Debug log
 
             if (!isSuccessful(statusCode)) {
                 String errorMessage;

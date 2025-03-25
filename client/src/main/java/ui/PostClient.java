@@ -20,7 +20,7 @@ public class PostClient implements ChessClient {
 
     @Override
     public void run() {
-        System.out.println(" Welcome back! Type 'help' for available commands.");
+        System.out.println("Type 'help' for available commands.");
         Scanner scanner = new Scanner(System.in);
         String command = "";
 
@@ -75,6 +75,7 @@ public class PostClient implements ChessClient {
         CreateGameResult result = serverFacade.createGame(request, authToken);
         if (result != null && result.gameID() != null) {
             System.out.println("Game created successfully with ID: " + result.gameID());
+            handleListGames();
         } else {
             System.out.println("Error: Failed to create game");
         }
@@ -112,8 +113,15 @@ public class PostClient implements ChessClient {
         }
 
         try {
+            handleListGames();
+
             Integer gameIndex = Integer.parseInt(tokens[1]);
             String playerColor = tokens[2].toUpperCase();
+
+            if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
+                System.out.println("Error: Invalid color. Must be 'WHITE' or 'BLACK'.");
+                return;
+            }
 
             if (!gameIDMap.containsKey(gameIndex)) {
                 System.out.println("Error: Invalid gameID.");
