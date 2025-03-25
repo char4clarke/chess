@@ -1,8 +1,10 @@
 package ui;
 
+import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.GameData;
 import service.GameService.*;
+import service.UserService;
 import service.UserService.*;
 
 import java.util.HashMap;
@@ -10,23 +12,26 @@ import java.util.Map;
 
 import java.util.*;
 
-public class PostClient {
+public class PostClient implements ChessClient {
     private final ServerFacade serverFacade;
+    private final UserService userService;
     private final String authToken;
     private final Map<Integer, Integer> gameIDMap = new HashMap<>();
 
-    public PostClient(ServerFacade serverFacade, String authToken) {
+    public PostClient(ServerFacade serverFacade, UserService userService, String authToken) {
         this.serverFacade = serverFacade;
         this.authToken = authToken;
+        this.userService = userService;
     }
 
+    @Override
     public void run() {
         System.out.println(" Welcome back! Type 'help' for available commands.");
         Scanner scanner = new Scanner(System.in);
         String command = "";
 
         while (!command.equalsIgnoreCase("logout")) {
-            System.out.print("[LOGGED_IN} >>> ");
+            System.out.print("[LOGGED_IN] >>> ");
             command = scanner.nextLine();
 
             try {
@@ -49,7 +54,7 @@ public class PostClient {
             case "list" -> handleListGames();
             case "join" -> handleJoinGame(tokens);
             case "observe" -> handleObserveGame(tokens);
-            case "logout" -> {};
+            case "logout" -> {}
             default -> System.out.println("Unknown command. Type 'help' for possible commands.");
         }
     }
@@ -61,26 +66,52 @@ public class PostClient {
                 join <ID> [WHITE|BLACK] - a game
                 observe <ID>            - a game
                 logout                  - when you are done
-                quit                    - playing chess
                 help                    - with possible commands
                 """);
     }
 
     private void handleCreateGame(String[] tokens) throws ResponseException {
+        System.out.println("handle create game started");
         if (tokens.length != 2) {
             System.out.println("Error: Invalid arguments. create expects: create <NAME>");
             return;
         }
 
         String gameName = tokens[1];
+        System.out.println("Creating game with name: " + gameName);
         CreateGameRequest request = new CreateGameRequest(gameName);
-        CreateGameResult result = serverFacade.createGame(request, authToken);
+        System.out.println("Created CreateGameRequest: " + request);
+        try {
+            if (authToken == null) {
+                System.out.println("Error: Unauthorized - no auth token provided.");
+                return;
+            }
+            try {
+                userService.validateAuthToken(authToken);
+                System.out.println("auth token validated");
+            } catch (DataAccessException e) {
+                System.out.println("auth token NOT valid");
+                throw new RuntimeException(e);
+            }
+            CreateGameResult result = serverFacade.createGame(request, authToken);
+            System.out.println("Received result from createGame: " + result);
 
-        if (result.message().contains("Success")) {
-            System.out.println("Game created successfully with ID: " + result.gameID());
-        } else {
-            System.out.println(result.message());
+            if (result != null) {
+                System.out.println("Game ID: " + result.gameID());
+                System.out.println("Result Message: " + result.message());
+            }
+
+            if (result != null && result.message() != null && result.message().contains("Success")) {
+                System.out.println("Game created successfully with ID: " + result.gameID());
+                handleListGames();
+            } else {
+                System.out.println("Error: " + (result != null ? result.message() : "Unknown error"));
+            }
+        } catch (ResponseException e) {
+            System.out.println("Error during game creation: " + e.getMessage());
         }
+
+
     }
 
     private void handleListGames() throws ResponseException {
@@ -89,7 +120,7 @@ public class PostClient {
             List<GameData> games = result.games();
             gameIDMap.clear();
 
-            if (games.isEmpty()) {
+            if (games == null || games.isEmpty()) {
                 System.out.println("No games currently.");
                 return;
             }
@@ -110,12 +141,12 @@ public class PostClient {
 
     private void handleJoinGame(String[] tokens) throws ResponseException {
         if (tokens.length != 3) {
-            System.out.println("Error: Invalid arguments. join expects: join <ID> [WHITE|BlACK]");
+            System.out.println("Error: Invalid arguments. join expects: join <ID> [WHITE|BLACK]");
             return;
         }
 
         try {
-            int gameIndex = Integer.parseInt(tokens[1]);
+            Integer gameIndex = Integer.parseInt(tokens[1]);
             String playerColor = tokens[2].toUpperCase();
 
             if (!gameIDMap.containsKey(gameIndex)) {
@@ -123,11 +154,15 @@ public class PostClient {
                 return;
             }
 
-            int gameID = gameIDMap.get(gameIndex);
+            Integer gameID = gameIDMap.get(gameIndex);
+            if (gameID == null) {
+                System.out.println("Error: Invalid gameID.");
+                return;
+            }
             JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
             JoinGameResult result = serverFacade.joinGame(request, authToken);
 
-            if (result.message().contains("Success")) {
+            if (result != null && result.message().contains("Success")) {
                 System.out.printf("Joined game %d as %s.%n", gameID, playerColor);
                 ChessBoardDrawing.drawChessboard(playerColor.equalsIgnoreCase("BLACK"));
             } else {
@@ -147,9 +182,9 @@ public class PostClient {
             LogoutRequest request = new LogoutRequest(authToken);
             serverFacade.logout(request);
             System.out.println("Logged out successfully!");
-            new PreClient(serverFacade).run();
+            new PreClient(serverFacade, userService).run();
         } catch (ResponseException e) {
-            System.out.println("Error during logout: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }
