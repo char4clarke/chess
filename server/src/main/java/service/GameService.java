@@ -27,7 +27,11 @@ public class GameService {
     public record GetGameResult(GameData game, String message) {}
 
     public record JoinGameRequest(String playerColor, int gameID) {}
-    public record JoinGameResult(String message) {}
+    public record JoinGameResult(String message) {
+        public JoinGameResult {
+            if (message == null) message = "";
+        }
+    }
 
 
 
