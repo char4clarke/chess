@@ -29,7 +29,9 @@ public class GameService {
     public record JoinGameRequest(String playerColor, int gameID) {}
     public record JoinGameResult(String message) {
         public JoinGameResult {
-            if (message == null) message = "";
+            if (message == null) {
+                message = "";
+            }
         }
     }
 

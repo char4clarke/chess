@@ -80,7 +80,7 @@ public class ServerFacadeTests {
         serverFacade.register(regRequest);
         LogoutRequest request = new LogoutRequest("incorrect");
         ResponseException e = Assertions.assertThrows(ResponseException.class, () -> serverFacade.logout(request));
-        Assertions.assertEquals(401, e.StatusCode());
+        Assertions.assertEquals(401, e.statusCode());
     }
 
 
@@ -99,7 +99,7 @@ public class ServerFacadeTests {
         serverFacade.register(regRequest);
         CreateGameRequest request = new CreateGameRequest("test_game");
         ResponseException e = Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(request, "incorrect"));
-        Assertions.assertEquals(401, e.StatusCode());
+        Assertions.assertEquals(401, e.statusCode());
     }
 
     @Test
@@ -121,7 +121,7 @@ public class ServerFacadeTests {
         serverFacade.createGame(request, regResult.authToken());
 
         ResponseException e = Assertions.assertThrows(ResponseException.class, () -> serverFacade.listGames("incorrect"));
-        Assertions.assertEquals(401, e.StatusCode());
+        Assertions.assertEquals(401, e.statusCode());
     }
 
 
@@ -143,7 +143,7 @@ public class ServerFacadeTests {
 
         JoinGameRequest request = new JoinGameRequest("WHITE", 45);
         ResponseException e = Assertions.assertThrows(ResponseException.class, () -> serverFacade.joinGame(request, regResult.authToken()));
-        Assertions.assertEquals(400, e.StatusCode());
+        Assertions.assertEquals(400, e.statusCode());
     }
 
 

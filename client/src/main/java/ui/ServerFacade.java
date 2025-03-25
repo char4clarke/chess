@@ -31,7 +31,9 @@ public class ServerFacade {
     public record JoinGameRequest(String playerColor, int gameID) {}
     public record JoinGameResult(String message) {
         public JoinGameResult {
-            if (message == null) message = "";
+            if (message == null) {
+                message = "";
+            }
         }
     }
 
@@ -115,7 +117,9 @@ public class ServerFacade {
     }
 
     private <T> T readBody(HttpURLConnection connection, Class<T> responseClass) throws IOException {
-        if (responseClass == null) return null;
+        if (responseClass == null) {
+            return null;
+        }
 
         try (InputStream inputStream = connection.getInputStream()) {
             return new Gson().fromJson(new InputStreamReader(inputStream), responseClass);
