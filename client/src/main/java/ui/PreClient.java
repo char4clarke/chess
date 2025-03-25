@@ -18,12 +18,14 @@ public class PreClient implements ChessClient {
         Scanner scanner = new Scanner(System.in);
         String command = "";
 
-        while (!command.equalsIgnoreCase("quit")) {
+        while (true) {
             System.out.print("[LOGGED_OUT] >>> ");
             command = scanner.nextLine();
 
             try {
-                executeCommand(command);
+                if (executeCommand(command)) {
+                    break;
+                }
             } catch (ResponseException e) {
                 System.out.println("Error: " + e);
             }
@@ -33,7 +35,7 @@ public class PreClient implements ChessClient {
     }
 
 
-    private void executeCommand(String command) throws ResponseException {
+    private boolean executeCommand(String command) throws ResponseException {
         String[] tokens = command.toLowerCase().split(" ");
         String cmd = tokens[0].toLowerCase();
 
@@ -41,9 +43,10 @@ public class PreClient implements ChessClient {
             case "help" -> displayHelp();
             case "register" -> handleRegister(tokens);
             case "login" -> handleLogin(tokens);
-            case "quit" -> {}
+            case "quit" -> { return true; }
             default -> System.out.println("Unknown command. Type 'help' for possible commands.");
         }
+        return false;
     }
 
     private void displayHelp() {
