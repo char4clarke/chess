@@ -7,6 +7,7 @@ import static ui.EscapeSequences.WHITE_KING;
 
 public class ChessBoardDrawing {
     private static final int BOARD_SIZE = 8;
+    private static final int SQUARE_WIDTH = 5;
 
     public static void drawChessboard(boolean isBlackPerspective) {
         var output = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -27,6 +28,7 @@ public class ChessBoardDrawing {
         for (int row = 0; row < BOARD_SIZE; row++) {
             printRow(output, row, true);
         }
+        printColumnLabels(output, true);
     }
 
     private static void drawChessBoardWhite(PrintStream output) {
@@ -34,10 +36,11 @@ public class ChessBoardDrawing {
         for (int row = BOARD_SIZE - 1; row >= 0; row--) {
             printRow(output, row, false);
         }
+        printColumnLabels(output, false);
     }
 
     private static void printColumnLabels(PrintStream output, boolean isBlackPerspective) {
-        output.print("   ");
+        output.print("  ");
         for (int col = 0; col < BOARD_SIZE; col++) {
             char label = (char) ('a' + (isBlackPerspective ? BOARD_SIZE - 1 - col : col));
             output.printf(" %c ", label);
