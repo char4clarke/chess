@@ -48,6 +48,22 @@ public class ServerFacadeTests {
     }
 
 
+    @Test
+    public void loginPositive() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        serverFacade.register(regRequest);
+        LoginRequest loginRequest = new LoginRequest("player1", "password");
+        LoginResult result = serverFacade.login(loginRequest);
+        Assertions.assertNotNull(result.authToken());
+    }
 
+    @Test
+    public void loginNegative() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        serverFacade.register(regRequest);
+        LoginRequest loginRequest = new LoginRequest("player1", "incorrect");
+        ResponseException e = Assertions.assertThrows(ResponseException.class, () -> serverFacade.login(loginRequest));
+        Assertions.assertTrue(e.getMessage().contains("Error"));
+    }
 
 }
