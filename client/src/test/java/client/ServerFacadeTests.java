@@ -104,4 +104,26 @@ public class ServerFacadeTests {
         Assertions.assertEquals(401, e.StatusCode());
     }
 
+    @Test
+    public void listGamesPositive() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterResult regResult = serverFacade.register(regRequest);
+        CreateGameRequest request = new CreateGameRequest("test_game");
+        serverFacade.createGame(request, regResult.authToken());
+
+        ListGamesResult result = serverFacade.listGames(regResult.authToken());
+        Assertions.assertNotEquals(0, result.games().size());
+    }
+
+    @Test
+    public void listGamesNegative() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterResult regResult = serverFacade.register(regRequest);
+        CreateGameRequest request = new CreateGameRequest("test_game");
+        serverFacade.createGame(request, regResult.authToken());
+
+        ResponseException e = Assertions.assertThrows(ResponseException.class, () -> serverFacade.listGames("incorrect"));
+        Assertions.assertEquals(401, e.StatusCode());
+    }
+
 }
