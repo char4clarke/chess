@@ -66,4 +66,22 @@ public class ServerFacadeTests {
         Assertions.assertTrue(e.getMessage().contains("Error"));
     }
 
+
+    @Test
+    public void logoutPositive() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterResult regResult = serverFacade.register(regRequest);
+        LogoutRequest request = new LogoutRequest(regResult.authToken());
+        Assertions.assertDoesNotThrow(() -> serverFacade.logout(request));
+    }
+
+    @Test
+    public void logoutNegative() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        serverFacade.register(regRequest);
+        LogoutRequest request = new LogoutRequest("incorrect");
+        ResponseException e = Assertions.assertThrows(ResponseException.class, () -> serverFacade.logout(request));
+        Assertions.assertEquals(401, e.StatusCode());
+    }
+
 }
