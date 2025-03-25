@@ -126,4 +126,28 @@ public class ServerFacadeTests {
         Assertions.assertEquals(401, e.StatusCode());
     }
 
+
+    @Test
+    public void joinGamePositive() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterResult regResult = serverFacade.register(regRequest);
+        CreateGameRequest createRequest = new CreateGameRequest("test_game");
+        CreateGameResult createResult = serverFacade.createGame(createRequest, regResult.authToken());
+
+        JoinGameRequest request = new JoinGameRequest("WHITE", createResult.gameID());
+        Assertions.assertDoesNotThrow(() -> serverFacade.joinGame(request, regResult.authToken()));
+    }
+
+    @Test
+    public void joinGameNegative() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterResult regResult = serverFacade.register(regRequest);
+
+        JoinGameRequest request = new JoinGameRequest("WHITE", 45);
+        ResponseException e = Assertions.assertThrows(ResponseException.class, () -> serverFacade.joinGame(request, regResult.authToken()));
+        Assertions.assertEquals(400, e.StatusCode());
+    }
+
+
+
 }
