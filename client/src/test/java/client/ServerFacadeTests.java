@@ -2,6 +2,7 @@ package client;
 
 import exception.ResponseException;
 import org.junit.jupiter.api.*;
+import service.ClearService.*;
 import service.GameService.*;
 import service.UserService.*;
 import server.Server;
@@ -148,5 +149,19 @@ public class ServerFacadeTests {
         Assertions.assertEquals(400, e.StatusCode());
     }
 
-    
+
+    @Test
+    public void clearTest() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterResult regResult = serverFacade.register(regRequest);
+        CreateGameRequest createRequest = new CreateGameRequest("test_game");
+        serverFacade.createGame(createRequest, regResult.authToken());
+        Assertions.assertEquals(1, serverFacade.listGames(regResult.authToken()).games().size());
+
+        Assertions.assertDoesNotThrow(() -> serverFacade.clear());
+
+        RegisterResult newRegResult = serverFacade.register(regRequest);
+        ListGamesResult listResult = serverFacade.listGames(newRegResult.authToken());
+        Assertions.assertEquals(0, listResult.games().size());
+    }
 }
