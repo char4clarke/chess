@@ -2,18 +2,15 @@ package client;
 
 import exception.ResponseException;
 import org.junit.jupiter.api.*;
-import service.ClearService.*;
-import service.GameService.*;
-import service.UserService.*;
 import server.Server;
 import ui.ServerFacade;
+import ui.ServerFacade.*;
 
 
 public class ServerFacadeTests {
 
     private static Server server;
     static ServerFacade serverFacade;
-    private static String validAuthToken;
 
     @BeforeAll
     public static void init() {
