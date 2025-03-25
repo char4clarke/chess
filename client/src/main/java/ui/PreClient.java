@@ -13,7 +13,7 @@ public class PreClient implements ChessClient {
     }
 
     @Override
-    public void run() {
+    public void run(boolean isFromLogout) {
         System.out.println(" Welcome to 240 chess. Type Help to get started. ");
         Scanner scanner = new Scanner(System.in);
         String command = "";
@@ -23,7 +23,7 @@ public class PreClient implements ChessClient {
             command = scanner.nextLine();
 
             try {
-                if (executeCommand(command)) {
+                if (executeCommand(command) || (isFromLogout && command.equalsIgnoreCase("quit"))) {
                     break;
                 }
             } catch (ResponseException e) {

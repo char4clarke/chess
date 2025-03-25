@@ -1,5 +1,6 @@
 package ui;
 
 public interface ChessClient {
-    void run();
+
+    void run(boolean isFromLogout);
 }

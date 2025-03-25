@@ -19,7 +19,7 @@ public class PostClient implements ChessClient {
     }
 
     @Override
-    public void run() {
+    public void run(boolean isFromLogout) {
         System.out.println("Type 'help' for available commands.");
         Scanner scanner = new Scanner(System.in);
         String command = "";
@@ -156,7 +156,7 @@ public class PostClient implements ChessClient {
             LogoutRequest request = new LogoutRequest(authToken);
             serverFacade.logout(request);
             System.out.println("Logged out successfully!");
-            new PreClient(serverFacade).run();
+            new PreClient(serverFacade).run(true);
         } catch (ResponseException e) {
             System.out.println("Error: " + e.getMessage());
         }
