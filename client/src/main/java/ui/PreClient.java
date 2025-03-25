@@ -73,7 +73,7 @@ public class PreClient implements ChessClient {
 
         if (result.message().contains("Success")) {
             System.out.println("Registration successful! Welcome, " + result.username());
-            new PostClient(serverFacade, result.authToken()).run();
+            new PostClient(serverFacade, result.authToken()).run(false);
         } else {
             System.out.println(result.message());
         }
@@ -94,7 +94,7 @@ public class PreClient implements ChessClient {
 
         if (result.message().contains("Success")) {
             System.out.println("Login successful! Welcome back, " + result.username());
-            new PostClient(serverFacade, result.authToken()).run();
+            new PostClient(serverFacade, result.authToken()).run(false);
         } else {
             System.out.println(result.message());
         }
