@@ -1,17 +1,21 @@
 package ui;
 
 import exception.ResponseException;
+import service.UserService;
 import service.UserService.*;
 
 import java.util.Scanner;
 
-public class PreClient {
+public class PreClient implements ChessClient {
     private final ServerFacade serverFacade;
+    private final UserService userService;
 
-    public PreClient(ServerFacade serverFacade) {
+    public PreClient(ServerFacade serverFacade, UserService userService) {
         this.serverFacade = serverFacade;
+        this.userService = userService;
     }
 
+    @Override
     public void run() {
         System.out.println(" Welcome to 240 chess. Type Help to get started. ");
         Scanner scanner = new Scanner(System.in);
@@ -40,7 +44,7 @@ public class PreClient {
             case "help" -> displayHelp();
             case "register" -> handleRegister(tokens);
             case "login" -> handleLogin(tokens);
-            case "quit" -> {};
+            case "quit" -> {}
             default -> System.out.println("Unknown command. Type 'help' for possible commands.");
         }
     }
@@ -69,7 +73,7 @@ public class PreClient {
 
         if (result.message().contains("Success")) {
             System.out.println("Registration successful! Welcome, " + result.username());
-            new PostClient(serverFacade, result.authToken()).run();
+            new PostClient(serverFacade, userService, result.authToken()).run();
         } else {
             System.out.println(result.message());
         }
@@ -90,7 +94,7 @@ public class PreClient {
 
         if (result.message().contains("Success")) {
             System.out.println("Login successful! Welcome back, " + result.username());
-            new PostClient(serverFacade, result.authToken()).run();
+            new PostClient(serverFacade, userService, result.authToken()).run();
         } else {
             System.out.println(result.message());
         }
