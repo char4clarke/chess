@@ -26,8 +26,8 @@ public class Server {
         new LoginHandler(userService);
         new LogoutHandler(userService);
         new CreateGameHandler(gameService);
-        new ListGamesHandler(gameService);
-        new JoinGameHandler(gameService);
+        new ListGamesHandler(gameService, userService);
+        new JoinGameHandler(gameService, userService);
         new ClearHandler(clearService);
 
         Spark.awaitInitialization();
