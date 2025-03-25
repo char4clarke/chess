@@ -9,11 +9,11 @@ import java.util.UUID;
 
 public class UserService {
     private final UserDAO userDAO;
-    private static AuthDAO authDAO;
+    private final AuthDAO authDAO;
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
-        UserService.authDAO = authDAO;
+        this.authDAO = authDAO;
     }
 
     public record RegisterRequest(String username, String password, String email) {}
@@ -93,7 +93,7 @@ public class UserService {
         authDAO.deleteAuth(logoutRequest.authToken());
     }
 
-    public static void validateAuthToken(String authToken) throws DataAccessException {
+    public void validateAuthToken(String authToken) throws DataAccessException {
         if (authToken == null) {
             throw new DataAccessException("Error: unauthorized");
         }
