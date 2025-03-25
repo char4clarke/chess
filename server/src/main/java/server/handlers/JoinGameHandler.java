@@ -9,12 +9,14 @@ import service.UserService;
 public class JoinGameHandler {
 
     private final Gson serializer = new Gson();
+    private final UserService userService;
 
     private record Message(String message) {}
 
     public record JoinGameRequest(String playerColor, Integer gameID) {}
 
-    public JoinGameHandler(GameService gameService) {
+    public JoinGameHandler(GameService gameService, UserService userService) {
+        this.userService = userService;
         put("/game", (req, res) -> {
             String authToken = req.headers("authorization");
             if (authToken == null) {
@@ -46,7 +48,7 @@ public class JoinGameHandler {
                 }
 
                 try {
-                    UserService.validateAuthToken(authToken);
+                    userService.validateAuthToken(authToken);
                 }
                 catch (Exception e) {
                     res.status(401);
@@ -64,7 +66,7 @@ public class JoinGameHandler {
                 } else if (joinGameResult.message().contains("Success")) {
                     res.status(200);
                     res.type("application/json");
-                    return "{}";
+                    return serializer.toJson(new GameService.JoinGameResult("Success"));
                 } else {
                     res.status(400);
                     res.type("application/json");
