@@ -9,10 +9,14 @@ import service.UserService;
 public class ListGamesHandler {
 
     private final Gson serializer = new Gson();
+    private final UserService userService;
+    private final GameService gameService;
 
     private record Message(String message) {}
 
-    public ListGamesHandler(GameService gameService) {
+    public ListGamesHandler(GameService gameService, UserService userService) {
+        this.userService = userService;
+        this.gameService = gameService;
         get("/game", (req, res) -> {
             String authToken = req.headers("authorization");
             if (authToken == null) {
@@ -21,7 +25,7 @@ public class ListGamesHandler {
                 return serializer.toJson(new Message("Error: unauthorized"));
             }
             try {
-                UserService.validateAuthToken(authToken);
+                userService.validateAuthToken(authToken);
             }
             catch (Exception e) {
                 res.status(401);
