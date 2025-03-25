@@ -11,8 +11,10 @@ public class LogoutHandler {
     private record Message(String message) {}
 
     private final Gson serializer = new Gson();
+    private final UserService userService;
 
     public LogoutHandler(UserService userService) {
+        this.userService = userService;
 
 
         delete("/session", (req, res) -> {
@@ -24,7 +26,7 @@ public class LogoutHandler {
             }
 
             try {
-                UserService.validateAuthToken(authToken);
+                userService.validateAuthToken(authToken);
                 UserService.LogoutRequest logoutRequest = new UserService.LogoutRequest(authToken);
                 userService.logout(logoutRequest);
 
