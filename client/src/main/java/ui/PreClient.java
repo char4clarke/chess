@@ -13,7 +13,7 @@ public class PreClient implements ChessClient {
     }
 
     @Override
-    public void run(boolean isFromLogout) {
+    public void run() {
         System.out.println(" Welcome to 240 chess. Type Help to get started. ");
         Scanner scanner = new Scanner(System.in);
         String command = "";
@@ -23,7 +23,7 @@ public class PreClient implements ChessClient {
             command = scanner.nextLine();
 
             try {
-                if (executeCommand(command) || (isFromLogout && command.equalsIgnoreCase("quit"))) {
+                if (executeCommand(command)) {
                     break;
                 }
             } catch (ResponseException e) {
@@ -32,6 +32,7 @@ public class PreClient implements ChessClient {
         }
 
         System.out.println("Goodbye!");
+        System.exit(0);
     }
 
 
@@ -73,7 +74,7 @@ public class PreClient implements ChessClient {
 
         if (result.message().contains("Success")) {
             System.out.println("Registration successful! Welcome, " + result.username());
-            new PostClient(serverFacade, result.authToken()).run(false);
+            new PostClient(serverFacade, result.authToken()).run();
         } else {
             System.out.println(result.message());
         }
@@ -94,7 +95,7 @@ public class PreClient implements ChessClient {
 
         if (result.message().contains("Success")) {
             System.out.println("Login successful! Welcome back, " + result.username());
-            new PostClient(serverFacade, result.authToken()).run(false);
+            new PostClient(serverFacade, result.authToken()).run();
         } else {
             System.out.println(result.message());
         }

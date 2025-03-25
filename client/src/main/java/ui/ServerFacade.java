@@ -19,8 +19,6 @@ public class ServerFacade {
         this.serverUrl = url;
     }
 
-    public record AuthData(String username, String authToken) {}
-    public record GameData(int gameID, String gameName, String whiteUsername, String blackUsername) {}
     public record ClearResult(String message) {}
 
     public record CreateGameRequest(String gameName) {}
