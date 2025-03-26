@@ -42,14 +42,39 @@ public class PostClient implements ChessClient {
         String[] tokens = command.split(" ");
         String cmd = tokens[0].toLowerCase();
 
-        switch (cmd) {
-            case "help" -> displayHelp();
-            case "create" -> handleCreateGame(tokens);
-            case "list" -> handleListGames();
-            case "join" -> handleJoinGame(tokens);
-            case "observe" -> handleObserveGame(tokens);
-            case "logout" -> {}
-            default -> System.out.println("Unknown command. Type 'help' for possible commands.");
+        try {
+            switch (cmd) {
+                case "help" -> displayHelp();
+                case "create" -> handleCreateGame(tokens);
+                case "list" -> handleListGames();
+                case "join" -> handleJoinGame(tokens);
+                case "observe" -> handleObserveGame(tokens);
+                case "logout" -> {}
+                default -> System.out.println("Unknown command. Type 'help' for possible commands.");
+            }
+        } catch (ResponseException e) {
+            handleResponseException(e);
+        }
+    }
+
+    private void handleResponseException(ResponseException e) {
+        int statusCode = e.statusCode();
+
+        switch (statusCode) {
+            case 400:
+                System.out.println("Bad Request, try again.");
+                break;
+            case 401:
+                System.out.println("Unauthorized, try again.");
+                break;
+            case 403:
+                System.out.println("Already taken, try again.");
+                break;
+            case 500:
+                System.out.println("Hmmm... Try again.");
+                break;
+            default:
+                System.out.println("Hmmm... Try again.");
         }
     }
 
@@ -66,7 +91,7 @@ public class PostClient implements ChessClient {
 
     private void handleCreateGame(String[] tokens) throws ResponseException {
         if (tokens.length != 2) {
-            System.out.println("Error: Invalid arguments. create expects: create <NAME>");
+            System.out.println("Invalid arguments. create expects: create <NAME>");
             return;
         }
 
@@ -77,7 +102,7 @@ public class PostClient implements ChessClient {
             System.out.println("Game created successfully with ID: " + result.gameID());
             handleListGames();
         } else {
-            System.out.println("Error: Failed to create game");
+            System.out.println("Failed to create game");
         }
     }
 
@@ -108,29 +133,27 @@ public class PostClient implements ChessClient {
 
     private void handleJoinGame(String[] tokens) throws ResponseException {
         if (tokens.length != 3) {
-            System.out.println("Error: Invalid arguments. join expects: join <ID> [WHITE|BLACK]");
+            System.out.println("Invalid arguments. join expects: join <ID> [WHITE|BLACK]");
             return;
         }
 
         try {
-            handleListGames();
-
             Integer gameIndex = Integer.parseInt(tokens[1]);
             String playerColor = tokens[2].toUpperCase();
 
             if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
-                System.out.println("Error: Invalid color. Must be 'WHITE' or 'BLACK'.");
+                System.out.println("Invalid color. Must be 'WHITE' or 'BLACK'.");
                 return;
             }
 
             if (!gameIDMap.containsKey(gameIndex)) {
-                System.out.println("Error: Invalid gameID.");
+                System.out.println("That gameID does not exist, try again.");
                 return;
             }
 
             Integer gameID = gameIDMap.get(gameIndex);
             if (gameID == null) {
-                System.out.println("Error: Invalid gameID.");
+                System.out.println("That gameID does not exist, try again.");
                 return;
             }
             JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
@@ -140,15 +163,28 @@ public class PostClient implements ChessClient {
                 System.out.printf("Joined game %d as %s.%n", gameID, playerColor);
                 ChessBoardDrawing.drawChessboard(playerColor.equalsIgnoreCase("BLACK"));
             } else {
-                System.out.println(result.message());
+                String message = result.message().toLowerCase();
+                if (message.contains("already taken")) {
+                    System.out.println("Cannot join as " + playerColor.toLowerCase() + " player, spot already taken.");
+                } else if (message.contains("full")) {
+                    System.out.println("Game is full.");
+                } else {
+                    System.out.println("Unable to join the game.");
+                }
             }
         } catch (NumberFormatException e) {
-            System.out.println("Error: gameID must be a number.");
+            System.out.println("gameID must be a number.");
         }
     }
 
     private void handleObserveGame(String[] tokens) {
-        System.out.println("Observing functionality has not yet been implemented.");
+        System.out.println("Observing game from white team's perspective.");
+        if (tokens.length != 2) {
+            System.out.println("Invalid arguments. observe expects: observe <ID>");
+            return;
+        }
+        ChessBoardDrawing.drawChessboard(false);
+
     }
 
     private void handleLogout() {
@@ -158,7 +194,7 @@ public class PostClient implements ChessClient {
             System.out.println("Logged out successfully!");
             new PreClient(serverFacade).run();
         } catch (ResponseException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 }

@@ -27,12 +27,33 @@ public class PreClient implements ChessClient {
                     break;
                 }
             } catch (ResponseException e) {
-                System.out.println("Error: " + e);
+                handleResponseException(e);
             }
         }
 
         System.out.println("Goodbye!");
         System.exit(0);
+    }
+
+    private void handleResponseException(ResponseException e) {
+        int statusCode = e.statusCode();
+
+        switch (statusCode) {
+            case 400:
+                System.out.println("Bad Request, try again.");
+                break;
+            case 401:
+                System.out.println("Username and password unauthorized, try again.");
+                break;
+            case 403:
+                System.out.println("Already taken, try again.");
+                break;
+            case 500:
+                System.out.println("Hmmm... Try again.");
+                break;
+            default:
+                System.out.println("Hmmm... Try again.");
+        }
     }
 
 
@@ -61,7 +82,7 @@ public class PreClient implements ChessClient {
 
     private void handleRegister(String[] tokens) throws ResponseException {
         if (tokens.length != 4) {
-            System.out.println("Error: Invalid argument. register expects: register <USERNAME> <PASSWORD> <EMAIL>");
+            System.out.println("Invalid argument. register expects: register <USERNAME> <PASSWORD> <EMAIL>");
             return;
         }
 
@@ -83,7 +104,7 @@ public class PreClient implements ChessClient {
 
     private void handleLogin(String[] tokens) throws ResponseException {
         if (tokens.length != 3) {
-            System.out.println("Error: Invalid argument. login expects: login <USERNAME> <PASSWORD>");
+            System.out.println("Invalid argument. login expects: login <USERNAME> <PASSWORD>");
             return;
         }
 
