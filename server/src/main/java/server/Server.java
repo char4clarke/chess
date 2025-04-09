@@ -2,6 +2,7 @@ package server;
 
 import dataaccess.*;
 import server.handlers.*;
+import server.websocket.WebSocketHandler;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -10,9 +11,6 @@ import spark.*;
 public class Server {
 
     public int run(int desiredPort) {
-        Spark.port(desiredPort);
-
-        Spark.staticFiles.location("web");
 
         MySqlUserDAO userDAO = new MySqlUserDAO();
         MySqlAuthDAO authDAO = new MySqlAuthDAO();
@@ -21,6 +19,11 @@ public class Server {
         UserService userService = new UserService(userDAO, authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
+        WebSocketHandler.setServices(gameService, userService);
+
+        Spark.webSocket("/ws", WebSocketHandler.class);
+        Spark.staticFiles.location("web");
+        Spark.port(desiredPort);
 
         new RegisterHandler(userService);
         new LoginHandler(userService);
