@@ -2,7 +2,6 @@ package ui;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import model.GameData;
 
 import java.io.*;
 import java.net.*;
