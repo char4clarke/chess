@@ -161,7 +161,10 @@ public class PostClient implements ChessClient {
 
             if (result != null && result.message().contains("Success")) {
                 System.out.printf("Joined game %d as %s.%n", gameID, playerColor);
-                ChessBoardDrawing.drawChessboard(playerColor.equalsIgnoreCase("BLACK"));
+
+                String url = serverFacade.getServerUrl();
+                new GameplayClient(url, authToken, gameID, null).start();
+//                ChessBoardDrawing.drawChessboard(playerColor.equalsIgnoreCase("BLACK"));
 
             } else {
                 String message = result.message().toLowerCase();
