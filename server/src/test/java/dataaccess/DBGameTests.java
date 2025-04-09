@@ -1,6 +1,7 @@
 package dataaccess;
 
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;
@@ -22,7 +23,7 @@ public class DBGameTests {
     @Order(1)
     @DisplayName("Create Game (Positive)")
     public void createGamePositive() throws DataAccessException {
-        int gameID = gameDAO.createGame("test game");
+        int gameID = gameDAO.createGame("test game", new ChessGame());
         Assertions.assertTrue(gameID > 0);
     }
 
@@ -31,7 +32,7 @@ public class DBGameTests {
     @DisplayName("Create Game (Negative)")
     public void createGameNegative() {
         try {
-            gameDAO.createGame(null);
+            gameDAO.createGame(null, new ChessGame());
             Assertions.fail("Error not thrown");
         } catch (DataAccessException e) {
             Assertions.assertTrue(e.getMessage().contains("Error:"));
@@ -42,7 +43,7 @@ public class DBGameTests {
     @Order(3)
     @DisplayName("Get Game (Positive)")
     public void getGamePositive() throws DataAccessException {
-        int gameID = gameDAO.createGame("test game");
+        int gameID = gameDAO.createGame("test game", new ChessGame());
         GameData game = gameDAO.getGame(gameID);
         Assertions.assertNotNull(game);
         Assertions.assertEquals(gameID, game.gameID());
@@ -61,7 +62,7 @@ public class DBGameTests {
     @Order(5)
     @DisplayName("Join Game (Positive)")
     public void joinGamePositive() throws DataAccessException {
-        int gameID = gameDAO.createGame("test game");
+        int gameID = gameDAO.createGame("test game", new ChessGame());
         gameDAO.joinGame(gameID, "username", "WHITE");
         GameData game = gameDAO.getGame(gameID);
         Assertions.assertEquals("username", game.whiteUsername());
@@ -72,7 +73,7 @@ public class DBGameTests {
     @DisplayName("Join Game (Negative)")
     public void joinGameNegative() throws DataAccessException {
         try {
-            int gameID = gameDAO.createGame("test game");
+            int gameID = gameDAO.createGame("test game", new ChessGame());
             gameDAO.joinGame(gameID, "user1", "WHITE");
             gameDAO.joinGame(gameID, "user2", "WHITE");
         } catch (DataAccessException e) {
@@ -84,9 +85,9 @@ public class DBGameTests {
     @Order(7)
     @DisplayName("List Games (Positive)")
     public void listGamesPositive() throws DataAccessException {
-        gameDAO.createGame("test game 1");
-        gameDAO.createGame("test game 2");
-        gameDAO.createGame("test game 3");
+        gameDAO.createGame("test game 1", new ChessGame());
+        gameDAO.createGame("test game 2", new ChessGame());
+        gameDAO.createGame("test game 3", new ChessGame());
         List<GameData> games = gameDAO.listGames();
         Assertions.assertEquals(3, games.size());
     }
@@ -103,9 +104,9 @@ public class DBGameTests {
     @Order(9)
     @DisplayName("Clear Game Data")
     public void clearGameData() throws DataAccessException {
-        gameDAO.createGame("test game 1");
-        gameDAO.createGame("test game 2");
-        gameDAO.createGame("test game 3");
+        gameDAO.createGame("test game 1", new ChessGame());
+        gameDAO.createGame("test game 2", new ChessGame());
+        gameDAO.createGame("test game 3", new ChessGame());
         Assertions.assertEquals(3, gameDAO.listGames().size());
 
         gameDAO.clear();
