@@ -65,13 +65,25 @@ public class GameplayClient {
         String[] tokens = input.split(" ");
         switch (tokens[0].toLowerCase()) {
             case "help" -> displayHelp();
-            case "move" -> handleMove(tokens);
-            case "leave" -> { handleLeave(); return true; }
-            case "resign" -> handleResign();
-            case "redraw" -> redrawBoard();
-            case "highlight" -> highlightMoves(tokens);
+//            case "move" -> handleMove(tokens);
+//            case "leave" -> { handleLeave(); return true; }
+//            case "resign" -> handleResign();
+//            case "redraw" -> redrawBoard();
+//            case "highlight" -> highlightMoves(tokens);
             default -> System.out.println("Unknown command. Type 'help' for options.");
         }
         return false;
+    }
+
+    private void displayHelp() {
+        System.out.println("""
+            Commands:
+              move <FROM> <TO> - Make a chess move (e.g., 'move e2e4')
+              redraw           - Redraw the chess board
+              leave            - Leave the game
+              resign           - Resign from the game
+              highlight <SQUARE> - Show legal moves (e.g., 'highlight e2')
+              help             - Show this help message
+            """);
     }
 }
