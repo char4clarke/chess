@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class UserService {
     private final UserDAO userDAO;
-    private final AuthDAO authDAO;
+    public final AuthDAO authDAO;
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
