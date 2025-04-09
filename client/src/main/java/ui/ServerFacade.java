@@ -126,4 +126,8 @@ public class ServerFacade {
     private boolean isSuccessful(int statusCode) {
         return statusCode / 100 == 2;
     }
+
+    public String getServerUrl() {
+        return serverUrl;
+    }
 }
