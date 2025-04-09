@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -18,11 +19,12 @@ public class MemoryGameDAO implements GameDAO {
         return new ArrayList<>(gameDataMap.values());
     }
 
+
     @Override
-    public int createGame(String gameName) {
+    public int createGame(String gameName, ChessGame game) {
         int gameID = nextID++;
-        GameData game = new GameData(gameID, null, null, gameName, null);
-        gameDataMap.put(gameID, game);
+        GameData newGame = new GameData(gameID, null, null, gameName, game);
+        gameDataMap.put(gameID, newGame);
         return gameID;
     }
 
