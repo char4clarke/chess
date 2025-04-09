@@ -162,6 +162,7 @@ public class PostClient implements ChessClient {
             if (result != null && result.message().contains("Success")) {
                 System.out.printf("Joined game %d as %s.%n", gameID, playerColor);
                 ChessBoardDrawing.drawChessboard(playerColor.equalsIgnoreCase("BLACK"));
+
             } else {
                 String message = result.message().toLowerCase();
                 if (message.contains("already taken")) {
