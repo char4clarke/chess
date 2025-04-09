@@ -1,3 +1,5 @@
+
+
 package dataaccess;
 
 import chess.ChessGame;
@@ -13,7 +15,6 @@ import static dataaccess.DatabaseManager.configureDatabase;
 import static dataaccess.DatabaseManager.executeUpdate;
 
 public class MySqlGameDAO implements GameDAO {
-
     private final Gson gson = new Gson();
 
     public MySqlGameDAO() {
@@ -39,18 +40,18 @@ public class MySqlGameDAO implements GameDAO {
         } catch (SQLException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
-
         return games;
     }
 
     @Override
-    public int createGame(String gameName) throws DataAccessException {
+    public int createGame(String gameName, ChessGame game) throws DataAccessException {
         if (gameName == null) {
             throw new DataAccessException("Error: game name is null");
         }
 
-        String statement = "INSERT INTO games (gameName) VALUES (?)";
-        return executeUpdate(statement, gameName);
+        String statement = "INSERT INTO games (gameName, stateJSON) VALUES (?, ?)";
+        String gameJson = gson.toJson(game); // Serialize ChessGame to JSON
+        return executeUpdate(statement, gameName, gameJson); // Pass both parameters
     }
 
     @Override
@@ -67,7 +68,6 @@ public class MySqlGameDAO implements GameDAO {
         } catch (SQLException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
-
         return null;
     }
 
@@ -77,7 +77,8 @@ public class MySqlGameDAO implements GameDAO {
         if (game == null) {
             throw new DataAccessException("Error: game not found");
         }
-        String statement = "";
+
+        String statement;
         if ("WHITE".equalsIgnoreCase(teamColor)) {
             if (game.whiteUsername() != null) {
                 throw new DataAccessException("Error: white player already in use");
@@ -101,33 +102,27 @@ public class MySqlGameDAO implements GameDAO {
         executeUpdate(statement);
     }
 
-
     private GameData readGame(ResultSet rs) throws SQLException {
         int gameID = rs.getInt("gameID");
         String whiteUsername = rs.getString("whiteUsername");
         String blackUsername = rs.getString("blackUsername");
         String gameName = rs.getString("gameName");
+        String stateJSON = rs.getString("stateJSON");
 
-        String stateJSONStr = rs.getString("stateJSON");
-        Object stateJSONObj = gson.fromJson(stateJSONStr, Object.class);
-
-        return new GameData(gameID, whiteUsername, blackUsername, gameName, (ChessGame) stateJSONObj);
+        // Deserialize JSON to ChessGame object
+        ChessGame chessGame = gson.fromJson(stateJSON, ChessGame.class);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
     }
-
-
-
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS games (
-                gameID INT AUTO_INCREMENT PRIMARY KEY,
-                whiteUsername VARCHAR(255),
-                blackUsername VARCHAR(255),
-                gameName VARCHAR(255) NOT NULL,
-                stateJSON TEXT
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLAtE=utf8mb4_0900_ai_ci
-            """
+        CREATE TABLE IF NOT EXISTS games (
+            gameID INT AUTO_INCREMENT PRIMARY KEY,
+            whiteUsername VARCHAR(255),
+            blackUsername VARCHAR(255),
+            gameName VARCHAR(255) NOT NULL,
+            stateJSON TEXT NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+        """
     };
-
-
 }
