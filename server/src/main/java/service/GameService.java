@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.AuthData;
@@ -51,7 +52,9 @@ public class GameService {
             return new CreateGameResult(null, "Error: unauthorized");
         }
         try {
-            int gameID = gameDAO.createGame(createGameRequest.gameName);
+            ChessGame game = new ChessGame();
+
+            int gameID = gameDAO.createGame(createGameRequest.gameName, game);
             return new CreateGameResult(gameID, "Success");
         }
         catch (DataAccessException e) {
