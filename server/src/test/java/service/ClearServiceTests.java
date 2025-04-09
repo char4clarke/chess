@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
@@ -24,7 +25,7 @@ public class ClearServiceTests {
         UserData testUser = new UserData("username", "password", "email");
         userDAO.createUser(testUser);
 
-        gameDAO.createGame("test game");
+        gameDAO.createGame("test game", new ChessGame());
 
         clearService = new ClearService(userDAO, authDAO, gameDAO);
     }
