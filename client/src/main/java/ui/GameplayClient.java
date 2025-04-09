@@ -5,6 +5,8 @@ import exception.ResponseException;
 import websocket.messages.*;
 import websocket.messages.ServerMessage;
 
+import java.util.Scanner;
+
 
 public class GameplayClient {
     private final WebSocketFacade webSocketFacade;
@@ -42,5 +44,34 @@ public class GameplayClient {
             boolean isBlackPerspective = playerColor != null && playerColor.equalsIgnoreCase("BLACK");
             ChessBoardDrawing.drawChessboard(isBlackPerspective);
         }
+    }
+
+    public void start() {
+        System.out.println("\nStarting gameplay...");
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("[GAME] >>> ");
+            String input = scanner.nextLine().trim();
+
+            try {
+                if (processCommand(input)) break;
+            } catch (ResponseException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+    }
+
+    private boolean processCommand(String input) throws ResponseException {
+        String[] tokens = input.split(" ");
+        switch (tokens[0].toLowerCase()) {
+            case "help" -> displayHelp();
+            case "move" -> handleMove(tokens);
+            case "leave" -> { handleLeave(); return true; }
+            case "resign" -> handleResign();
+            case "redraw" -> redrawBoard();
+            case "highlight" -> highlightMoves(tokens);
+            default -> System.out.println("Unknown command. Type 'help' for options.");
+        }
+        return false;
     }
 }
