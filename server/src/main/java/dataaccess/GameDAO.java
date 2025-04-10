@@ -18,4 +18,6 @@ public interface GameDAO {
 
     void clear() throws DataAccessException;
 
+    void updateGame(GameData gameData) throws DataAccessException;
+
 }
