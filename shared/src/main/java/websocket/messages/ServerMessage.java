@@ -1,5 +1,7 @@
 package websocket.messages;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.Objects;
 
 /**
@@ -8,8 +10,9 @@ import java.util.Objects;
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
-public class ServerMessage {
-    ServerMessageType serverMessageType;
+public abstract class ServerMessage {
+    @Expose
+    protected ServerMessageType serverMessageType;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -22,7 +25,7 @@ public class ServerMessage {
     }
 
     public ServerMessageType getServerMessageType() {
-        return this.serverMessageType;
+        return serverMessageType;
     }
 
     @Override
