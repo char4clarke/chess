@@ -13,6 +13,7 @@ import java.util.Objects;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor teamTurn;
+    private boolean isGameOver = false;
 
     public ChessGame() {
         // initialize an empty board and start with white team's turn
@@ -252,5 +253,13 @@ public class ChessGame {
 
     private TeamColor getOpponentColor(TeamColor teamColor) {
         return (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        isGameOver = gameOver;
+    }
+
+    public boolean isGameOver() {
+        return isGameOver;
     }
 }
