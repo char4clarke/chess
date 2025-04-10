@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
@@ -7,11 +8,12 @@ import model.AuthData;
 import model.GameData;
 import dataaccess.AuthDAO;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameService {
-    private final GameDAO gameDAO;
+    public final GameDAO gameDAO;
     private final AuthDAO authDAO;
 
     public GameService(GameDAO gameDAO, AuthDAO authDAO) {
@@ -52,9 +54,16 @@ public class GameService {
             return new CreateGameResult(null, "Error: unauthorized");
         }
         try {
+            System.out.println("[GameService] Creating game: " + createGameRequest.gameName());
             ChessGame game = new ChessGame();
+            ChessBoard board = new ChessBoard();
+            board.resetBoard();
+            game.setBoard(board);
+            System.out.println("[GameService] New game board: " + game.getBoard());
 
             int gameID = gameDAO.createGame(createGameRequest.gameName, game);
+            System.out.println("[GameService] Game created with ID: " + gameID);
+
             return new CreateGameResult(gameID, "Success");
         }
         catch (DataAccessException e) {
@@ -83,10 +92,13 @@ public class GameService {
             return new GetGameResult(null, "Error: invalid gameID");
         }
         try {
+            System.out.println("[GameService] Fetching game ID: " + getGameRequest.gameID);
+
             GameData game = gameDAO.getGame(getGameRequest.gameID);
             if (game == null) {
                 return new GetGameResult(null, "Error: invalid gameID");
             }
+            System.out.println("[GameService] Retrieved game: " + game);
             return new GetGameResult(game, "Success");
         }
         catch (DataAccessException e) {
@@ -135,6 +147,30 @@ public class GameService {
         catch (DataAccessException e) {
             return new JoinGameResult("Error: " + e.getMessage());
         }
+    }
+
+    public void updateGame(int gameID, ChessGame updatedGame) throws DataAccessException {
+        GameData existing = gameDAO.getGame(gameID);
+        GameData updated = new GameData(
+                gameID,
+                existing.whiteUsername(),  // Preserve existing players
+                existing.blackUsername(),
+                existing.gameName(),
+                updatedGame
+        );
+        gameDAO.updateGame(updated);  // Pass full GameData object
+    }
+
+    public void updateGamePlayers(int gameID, String white, String black) throws DataAccessException {
+        GameData existing = gameDAO.getGame(gameID);
+        GameData updated = new GameData(
+                gameID,
+                white,
+                black,
+                existing.gameName(),
+                existing.game()  // Preserve game state
+        );
+        gameDAO.updateGame(updated);  // Pass full GameData object
     }
 
 }
