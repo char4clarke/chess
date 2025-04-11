@@ -111,7 +111,9 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
             String input = scanner.nextLine().trim();
 
             try {
-                if (processCommand(input)) break;
+                if (processCommand(input)) {
+                    break;
+                }
             } catch (ResponseException e) {
                 System.out.println("Error: " + e.getMessage());
                 e.printStackTrace();
