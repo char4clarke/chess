@@ -163,8 +163,7 @@ public class PostClient implements ChessClient {
                 System.out.printf("Joined game %d as %s.%n", gameID, playerColor);
 
                 String url = serverFacade.getServerUrl();
-//                ChessBoardDrawing.drawChessboard(playerColor.equalsIgnoreCase("BLACK"));
-                new GameplayClient(url, authToken, gameID, null).start();
+                new GameplayClient(url, authToken, gameID, playerColor).run();
 
             } else {
                 String message = result.message().toLowerCase();
@@ -187,8 +186,6 @@ public class PostClient implements ChessClient {
             System.out.println("Invalid arguments. observe expects: observe <ID>");
             return;
         }
-//        ChessBoardDrawing.drawChessboard(false);
-
     }
 
     private void handleLogout() {
