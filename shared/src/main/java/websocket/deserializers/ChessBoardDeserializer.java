@@ -7,24 +7,23 @@ import com.google.gson.*;
 
 import java.lang.reflect.Type;
 
+
+
 public class ChessBoardDeserializer implements JsonDeserializer<ChessBoard> {
     @Override
-    public ChessBoard deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
+    public ChessBoard deserialize(JsonElement json, Type type, JsonDeserializationContext context) {
         ChessBoard board = new ChessBoard();
-        JsonObject obj = json.getAsJsonObject();
-        JsonArray squares = obj.getAsJsonArray("squares");
+        JsonArray squares = json.getAsJsonObject().getAsJsonArray("squares");
 
         for (int row = 0; row < 8; row++) {
-            JsonArray rowArray = squares.get(row).getAsJsonArray();
+            JsonArray rank = squares.get(row).getAsJsonArray();
             for (int col = 0; col < 8; col++) {
-                JsonElement pieceElement = rowArray.get(col);
-                if (!pieceElement.isJsonNull()) {
-                    ChessPiece piece = context.deserialize(pieceElement, ChessPiece.class);
-                    board.addPiece(new ChessPosition(row + 1, col + 1), piece);
-                }
+                ChessPiece piece = context.deserialize(rank.get(col), ChessPiece.class);
+                board.addPiece(new ChessPosition(8 - row, col + 1), piece);
             }
         }
         return board;
     }
 }
+
+
