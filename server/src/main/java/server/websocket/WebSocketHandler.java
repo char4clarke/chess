@@ -111,6 +111,11 @@ public class WebSocketHandler {
 
             // Validate authentication
             AuthData authData = userService.authDAO.getAuth(command.getAuthToken());
+            if (authData == null) {
+                sendError(session, "Invalid auth token");
+                session.close();
+                return;
+            }
             GameData gameData = gameService.getGame(new GameService.GetGameRequest(command.getGameID())).game();
 
             // Store connection FIRST

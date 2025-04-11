@@ -73,13 +73,13 @@ public class WebSocketFacade extends Endpoint {
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
         this.session = session;
-        System.out.println("[WS] Connection established");
+//        System.out.println("[WS] Connection established");
         sendConnectCommand();
     }
 
     @Override
     public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("[WS] Connection closed: " + closeReason);
+//        System.out.println("[WS] Connection closed: " + closeReason);
     }
 
 
@@ -98,7 +98,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void sendMessage(UserGameCommand command) throws ResponseException {
         try {
-            System.out.println("⬆️ SENDING: " + gson.toJson(command));
+//            System.out.println("⬆️ SENDING: " + gson.toJson(command));
             String json = gson.toJson(command);
             this.session.getBasicRemote().sendText(json);
         } catch (Exception ex) {
