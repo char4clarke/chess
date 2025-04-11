@@ -7,13 +7,14 @@ import chess.*;
 
 import java.lang.reflect.Type;
 
-public class ChessGameSerializer implements JsonSerializer<ChessGame> {
 
+public class ChessGameSerializer implements JsonSerializer<ChessGame> {
     @Override
-    public JsonElement serialize(ChessGame chessGame, Type type, JsonSerializationContext jsonSerializationContext) {
+    public JsonElement serialize(ChessGame game, Type type, JsonSerializationContext context) {
         JsonObject obj = new JsonObject();
-        obj.addProperty("board", chessGame.getBoard().toString());
-        obj.addProperty("teamTurn", chessGame.getTeamTurn().toString());
+        obj.add("board", context.serialize(game.getBoard()));
+        obj.addProperty("teamTurn", game.getTeamTurn().name());
+        obj.addProperty("isGameOver", game.isGameOver());
         return obj;
     }
 }
