@@ -2,37 +2,45 @@ package ui;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+
+import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessPiece.PieceType.*;
 import static ui.EscapeSequences.*;
+import chess.ChessGame;
+import chess.ChessBoard;
+import chess.ChessPiece.*;
+import chess.ChessPiece;
+import chess.ChessPosition;
 
 public class ChessBoardDrawing {
     private static final int BOARD_SIZE = 8;
 
-    public static void drawChessboard(boolean isBlackPerspective) {
+    public static void drawChessboard(ChessBoard board, boolean isBlackPerspective) {
         var output = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         output.print(ERASE_SCREEN);
 
         if (isBlackPerspective) {
-            drawChessBoardBlack(output);
+            drawChessBoardBlack(output, board);
         } else {
-            drawChessBoardWhite(output);
+            drawChessBoardWhite(output, board);
         }
 
         output.print(RESET_TEXT_COLOR);
         output.print(RESET_BG_COLOR);
     }
 
-    private static void drawChessBoardBlack(PrintStream output) {
+    private static void drawChessBoardBlack(PrintStream output, ChessBoard board) {
         printColumnLabels(output, true);
         for (int dataRow = 0; dataRow < BOARD_SIZE; dataRow++) {
-            printRow(output, dataRow, true);
+            printRow(output, board, dataRow, true);
         }
         printColumnLabels(output, true);
     }
 
-    private static void drawChessBoardWhite(PrintStream output) {
+    private static void drawChessBoardWhite(PrintStream output, ChessBoard board) {
         printColumnLabels(output, false);
         for (int dataRow = BOARD_SIZE - 1; dataRow >= 0; dataRow--) {
-            printRow(output, dataRow, false);
+            printRow(output, board, dataRow, false);
         }
         printColumnLabels(output, false);
     }
@@ -46,7 +54,7 @@ public class ChessBoardDrawing {
         output.println();
     }
 
-    private static void printRow(PrintStream output, int dataRow, boolean isBlackPerspective) {
+    private static void printRow(PrintStream output, ChessBoard board, int dataRow, boolean isBlackPerspective) {
         int displayRow = dataRow + 1;
         output.printf("%d ", displayRow);
 
@@ -54,34 +62,32 @@ public class ChessBoardDrawing {
             int actualCol = isBlackPerspective ? BOARD_SIZE - 1 - col : col;
             boolean isWhiteSquare = (dataRow + actualCol) % 2 != 0;
             String bgColor = isWhiteSquare ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
-            String piece = getPiece(dataRow, actualCol);
-            output.print(bgColor + piece + RESET_BG_COLOR);
+
+            ChessPiece piece = board.getPiece(new ChessPosition(dataRow + 1, actualCol + 1));
+            output.print(bgColor + getPieceSymbol(piece) + RESET_BG_COLOR);
         }
         output.printf(" %d%n", displayRow);
     }
 
-    private static String getPiece(int physicalRow, int physicalCol) {
-        return switch (physicalRow) {
-            case 7 -> switch (physicalCol) {
-                case 0, 7 -> WHITE_ROOK;
-                case 1, 6 -> WHITE_KNIGHT;
-                case 2, 5 -> WHITE_BISHOP;
-                case 3 -> WHITE_QUEEN;
-                case 4 -> WHITE_KING;
-                default -> EMPTY;
-            };
-            case 0 -> switch (physicalCol) {
-                case 0, 7 -> BLACK_ROOK;
-                case 1, 6 -> BLACK_KNIGHT;
-                case 2, 5 -> BLACK_BISHOP;
-                case 3 -> BLACK_QUEEN;
-                case 4 -> BLACK_KING;
-                default -> EMPTY;
-            };
-            case 6 -> WHITE_PAWN;
-            case 1 -> BLACK_PAWN;
-            default -> EMPTY;
-        };
+    private static String getPieceSymbol(ChessPiece piece) {
+        if (piece == null) {
+            return EMPTY;
+        }
+        switch (piece.getPieceType()) {
+            case KING:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.BLACK_KING : EscapeSequences.WHITE_KING;
+            case QUEEN:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.BLACK_QUEEN : EscapeSequences.WHITE_QUEEN;
+            case BISHOP:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.BLACK_BISHOP : EscapeSequences.WHITE_BISHOP;
+            case KNIGHT:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.BLACK_KNIGHT : EscapeSequences.WHITE_KNIGHT;
+            case ROOK:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.BLACK_ROOK : EscapeSequences.WHITE_ROOK;
+            case PAWN:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.BLACK_PAWN : EscapeSequences.WHITE_PAWN;
+            default:
+                return EscapeSequences.EMPTY;
+        }
     }
 }
-
