@@ -180,12 +180,16 @@ public class PostClient implements ChessClient {
         }
     }
 
-    private void handleObserveGame(String[] tokens) {
+    private void handleObserveGame(String[] tokens) throws ResponseException {
         System.out.println("Observing game from white team's perspective.");
         if (tokens.length != 2) {
             System.out.println("Invalid arguments. observe expects: observe <ID>");
             return;
         }
+        int gameID = Integer.parseInt(tokens[1]);
+        // Connect as an observer
+        new GameplayClient(serverFacade.getServerUrl(), authToken, gameID, null).run();
+        System.out.println("Connected as an observer to game " + gameID);
     }
 
     private void handleLogout() {
