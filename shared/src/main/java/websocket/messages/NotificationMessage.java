@@ -9,6 +9,11 @@ public class NotificationMessage extends ServerMessage {
         this.message = message;
     }
 
+    @Override
+    public ServerMessageType getServerMessageType() {
+        return ServerMessageType.NOTIFICATION;
+    }
+
     public String getMessage() {
         return message;
     }
