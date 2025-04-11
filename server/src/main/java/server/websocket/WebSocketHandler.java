@@ -18,6 +18,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,9 +35,9 @@ public class WebSocketHandler {
                                 .registerSubtype(ErrorMessage.class, "ERROR")
                                 .registerSubtype(NotificationMessage.class, "NOTIFICATION")
                 )
-                        .registerTypeAdapter(ChessGame.class, new ChessGameDeserializer())
-            .registerTypeAdapter(ChessBoard.class, new ChessBoardDeserializer())
-            .registerTypeAdapter(ChessPiece.class, new ChessPieceDeserializer())
+                        .registerTypeAdapter(ChessGame.class, new ChessGameSerializer())
+            .registerTypeAdapter(ChessBoard.class, new ChessBoardSerializer())
+            .registerTypeAdapter(ChessPiece.class, new ChessPieceSerializer())
             .create();
     private final Map<Session, Integer> gameSessions = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, ChessGame> games = new ConcurrentHashMap<>();
@@ -47,6 +48,8 @@ public class WebSocketHandler {
         WebSocketHandler.gameService = gameService;
         WebSocketHandler.userService = userService;
     }
+
+
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -60,7 +63,7 @@ public class WebSocketHandler {
         if (gameID != null) { // Add null check
             gameConnections.get(gameID).remove(sessionToAuth.get(session));
             gameSessions.remove(session);
-            sessionToAuth.remove(session);
+//            sessionToAuth.remove(session);
         }
         String authToken = sessionToAuth.get(session);
         if (authToken != null) {
@@ -106,39 +109,39 @@ public class WebSocketHandler {
         try {
             System.out.println("[WebSocketHandler] Handling CONNECT for game ID: " + command.getGameID());
 
-            userService.validateAuthToken(command.getAuthToken());
+            // Validate authentication
             AuthData authData = userService.authDAO.getAuth(command.getAuthToken());
-            System.out.println("[WebSocketHandler] Auth validated for user: " + authData.username());
-
             GameData gameData = gameService.getGame(new GameService.GetGameRequest(command.getGameID())).game();
-            System.out.println("[WebSocketHandler] Retrieved GameData: " + gameData);
 
-            if (gameData == null || gameData.game() == null) {
-                System.err.println("[WebSocketHandler] Game data is null for ID: " + command.getGameID());
-                sendError(session, "Game not found");
-                return;
-            }
-
-
+            // Store connection FIRST
             gameSessions.put(session, command.getGameID());
             sessionToAuth.put(session, command.getAuthToken());
             gameConnections
                     .computeIfAbsent(command.getGameID(), k -> new ConcurrentHashMap<>())
                     .put(command.getAuthToken(), session);
 
+            // 1. Send game state DIRECTLY to new connection FIRST
+            ChessGame currentGame = gameData.game();
+            sendMessage(session, new LoadGameMessage(currentGame));
+            System.out.println("Sent initial game state to new player");
 
-            System.out.println("[WebSocketHandler] Sending LoadGameMessage for game ID: " + command.getGameID());
-            sendMessage(session, new LoadGameMessage(gameData.game()));
-
-            String playerRole = (command.getPlayerColor() != null ? String.valueOf(command.getPlayerColor()) : "observer");
+            // 2. Broadcast join notification to OTHERS
+            String playerRole = "observer";
+            if (authData.username().equals(gameData.whiteUsername())) {
+                playerRole = "WHITE";
+            } else if (authData.username().equals(gameData.blackUsername())) {
+                playerRole = "BLACK";
+            }
             String notification = authData.username() + " joined as " + playerRole;
             broadcast(command.getGameID(), new NotificationMessage(notification), command.getAuthToken());
 
         } catch (Exception e) {
-            System.err.println("[WebSocketHandler] Error in handleConnect: " + e.getMessage());
-            sendError(session, "Error: " + e.getMessage());
+            System.err.println("[WebSocketHandler] Connection error: " + e.getMessage());
+            sendError(session, "Connection failed: " + e.getMessage());
+            session.close();
         }
     }
+
 
 
     private void handleMakeMove(Session session, MakeMoveCommand command) throws IOException {
