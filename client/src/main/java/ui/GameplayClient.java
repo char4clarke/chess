@@ -124,7 +124,14 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
         switch (tokens[0].toLowerCase()) {
             case "help" -> displayHelp();
             case "move" -> handleMove(tokens);
-            case "leave" -> { handleLeave(); return true; }
+            case "leave" -> {
+                if (isPlayer()) {
+                    handleLeave();
+                } else {
+                    handleObserverLeave();
+                }
+                return true;
+            }
             case "resign" -> handleResign();
             case "redraw" -> redrawBoard();
             case "highlight" -> highlightMoves(tokens);
@@ -183,6 +190,11 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
             return;
         }
 
+        if (!isPlayer()) {
+            System.out.println("You cannot make moves as an observer.");
+            return;
+        }
+
         try {
 
             String moveInput = String.join("", Arrays.copyOfRange(tokens, 1, tokens.length));
@@ -201,6 +213,11 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
             System.out.println("Invalid move format: " + e.getMessage());
         }
 
+    }
+
+    private boolean isPlayer() {
+        return playerColor != null &&
+                ("WHITE".equalsIgnoreCase(playerColor) || "BLACK".equalsIgnoreCase(playerColor));
     }
 
     private ChessPosition parsePosition(String pos) {
@@ -272,6 +289,11 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
         } else {
             System.out.println("Resignation canceled");
         }
+    }
+
+    private void handleObserverLeave() throws ResponseException {
+        System.out.println("Leaving the game as an observer...");
+        webSocketFacade.leaveGame(authToken, gameID);
     }
 
 }
