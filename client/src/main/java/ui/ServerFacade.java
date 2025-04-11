@@ -1,7 +1,9 @@
 package ui;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exception.ResponseException;
+import websocket.messages.ServerMessage;
 
 import java.io.*;
 import java.net.*;
@@ -10,12 +12,14 @@ import java.util.List;
 
 public class ServerFacade {
 
+    private String playerColor;
 
     private final String serverUrl;
     private final Gson gson = new Gson();
 
     public ServerFacade(String url) {
         this.serverUrl = url;
+        this.playerColor = playerColor;
     }
 
     public record ClearResult(String message) {}
@@ -130,4 +134,21 @@ public class ServerFacade {
     public String getServerUrl() {
         return serverUrl;
     }
+
+
+    public void connectWebSocket(String authToken, int gameID) throws ResponseException {
+        try {
+            String wsUrl = serverUrl.replace("http", "ws") + "/ws";
+            WebSocketFacade.NotificationHandler handler = new WebSocketFacade.NotificationHandler() {
+                @Override
+                public void notify(ServerMessage notification) {
+                    System.out.println("[DEBUG] Received server message: ");
+                }
+            };
+            WebSocketFacade webSocketFacade = new WebSocketFacade(wsUrl, handler, authToken, gameID, playerColor);
+        } catch (ResponseException e) {
+            throw new ResponseException(500, "Failed to connect to WebSocket: " + e.getMessage());
+        }
+    }
+
 }
