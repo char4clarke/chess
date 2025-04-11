@@ -20,28 +20,28 @@ import java.net.URISyntaxException;
 public class WebSocketFacade extends Endpoint {
     private Session session;
     private final NotificationHandler notificationHandler;
-    private final Gson gson;
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(
+                    RuntimeTypeAdapterFactory.of(ServerMessage.class, "serverMessageType")
+                            .registerSubtype(LoadGameMessage.class, "LOAD_GAME")
+                            .registerSubtype(ErrorMessage.class, "ERROR")
+                            .registerSubtype(NotificationMessage.class, "NOTIFICATION")
+            )
+            .registerTypeAdapter(ChessGame.class, new ChessGameDeserializer())
+            .registerTypeAdapter(ChessBoard.class, new ChessBoardDeserializer())
+            .registerTypeAdapter(ChessPiece.class, new ChessPieceDeserializer())
+            .enableComplexMapKeySerialization()
+            .create();
+
     private final String authToken;
     private final Integer gameID;
     private final String playerColor;
 
     public WebSocketFacade(String url, NotificationHandler notificationHandler,
                            String authToken, Integer gameID, String playerColor) throws ResponseException {
-
-        this.gson = new GsonBuilder()
-                .registerTypeAdapterFactory(
-                        RuntimeTypeAdapterFactory.of(ServerMessage.class, "serverMessageType")
-                                .registerSubtype(LoadGameMessage.class, "LOAD_GAME")
-                                .registerSubtype(ErrorMessage.class, "ERROR")
-                                .registerSubtype(NotificationMessage.class, "NOTIFICATION")
-                )
-                .registerTypeAdapter(ChessGame.class, new ChessGameDeserializer())
-                .registerTypeAdapter(ChessBoard.class, new ChessBoardDeserializer())
-                .registerTypeAdapter(ChessPiece.class, new ChessPieceDeserializer())
-                .create();
         try {
-            url = url.replace("http", "ws") + "/ws";
-            URI socketURI = new URI(url);
+            url = url.replace("http", "ws");
+            URI socketURI = new URI(url + "/ws");
             this.notificationHandler = notificationHandler;
             this.authToken = authToken;
             this.gameID = gameID;
@@ -53,38 +53,55 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
-                    notificationHandler.notify(serverMessage);
-                    System.out.println("[DEBUG] Received: " + message);
+                    System.out.println("[DEBUG] RAW SERVER MESSAGE: " + message);
+                    try {
+                        ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
+                        System.out.println("[DEBUG] DESERIALIZED SERVER MESSAGE: " + serverMessage);
+                        notificationHandler.notify(serverMessage);
+                    } catch (Exception e) {
+                        System.err.println("[ERROR] Failed to parse server message: " + e.getMessage());
+                        e.printStackTrace();
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());
+
         }
     }
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
+        this.session = session;
+        System.out.println("[WS] Connection established");
         sendConnectCommand();
     }
 
+    @Override
+    public void onClose(Session session, CloseReason closeReason) {
+        System.out.println("[WS] Connection closed: " + closeReason);
+    }
+
+
+
     private void sendConnectCommand() {
         try {
-            ConnectCommand command = new ConnectCommand(
-                    authToken, gameID, playerColor
-            );
+            var command = new ConnectCommand(authToken, gameID);
             sendMessage(command);
         } catch (ResponseException e) {
-            notificationHandler.notify(new
-                    ErrorMessage(e.getMessage()));
+            e.printStackTrace();
+
+            notificationHandler.notify(new ErrorMessage(e.getMessage()));
         }
     }
 
+
     public void sendMessage(UserGameCommand command) throws ResponseException {
         try {
+            System.out.println("⬆️ SENDING: " + gson.toJson(command));
             String json = gson.toJson(command);
             this.session.getBasicRemote().sendText(json);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
