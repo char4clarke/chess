@@ -1,18 +1,17 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
+import chess.*;
 import exception.ResponseException;
 import websocket.commands.MakeMoveCommand;
 import websocket.messages.*;
 import websocket.messages.ServerMessage;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 
 public class GameplayClient implements WebSocketFacade.NotificationHandler {
+    private volatile boolean gameStateReceived = false;
     private final WebSocketFacade webSocketFacade;
     private ChessGame game;
     private final String playerColor;
@@ -21,7 +20,7 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
     private boolean inGame;
 
     public GameplayClient(String url, String authToken, Integer gameID, String playerColor) throws ResponseException {
-        this.webSocketFacade = new WebSocketFacade(url, this::handleServerMessage, authToken, gameID, playerColor);
+        this.webSocketFacade = new WebSocketFacade(url, this::notify, authToken, gameID, playerColor);
         this.playerColor = playerColor;
         this.authToken = authToken;
         this.gameID = gameID;
@@ -29,33 +28,47 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
         this.inGame = true;
     }
 
-    private void handleServerMessage(ServerMessage message) {
-        System.out.println("Received message type: " + message.getServerMessageType());
-        switch (message.getServerMessageType()) {
-            case LOAD_GAME -> loadGame((LoadGameMessage) message);
-            case ERROR -> error((ErrorMessage) message);
-            case NOTIFICATION -> notification((NotificationMessage) message);
-        }
-    }
 
     @Override
     public void notify(ServerMessage message) {
+        System.out.println("[DEBUG] Received server message: " + message);
 
         switch (message.getServerMessageType()) {
-            case LOAD_GAME -> loadGame((LoadGameMessage) message);
-            case ERROR -> error((ErrorMessage) message);
-            case NOTIFICATION -> notification((NotificationMessage) message);
+            case LOAD_GAME -> {
+                    System.out.println("[DEBUG] Handling LOAD_GAME");
+                    loadGame((LoadGameMessage) message);
+            }
+            case ERROR -> {
+                System.out.println("[DEBUG] Handling ERROR");
+                error((ErrorMessage) message);
+            }
+            case NOTIFICATION -> {
+                System.out.println("[DEBUG] Handling NOTIFICATION");
+                notification((NotificationMessage) message);
+            }
+            default -> System.out.println("[ERROR] Unknown server message type.");
         }
     }
 
     private void loadGame(LoadGameMessage message) {
-        System.out.println("Received game state");
 
-        this.game = message.getGame();
+        System.out.println("⬇️ Received game state");
+
+        synchronized(this) {
+            this.game = message.getGame();
+            this.notifyAll();
+        }
+        System.out.println("⬇️ RECEIVED GAME: " + (game != null ? "VALID" : "NULL"));
+
         if (game != null && game.getBoard() != null) {
-            redrawBoard();
+            System.out.println("[DEBUG] Game state is valid.");
+            if (game.isGameOver()) {
+                inGame = false;
+            } else {
+                redrawBoard();
+            }
         } else {
-            System.out.println("Received empty game state");
+            System.err.println("[ERROR] Game state is null or invalid.");
         }
     }
 
@@ -70,6 +83,7 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
     private void redrawBoard() {
         if (game != null) {
             boolean isBlackPerspective = "BLACK".equalsIgnoreCase(playerColor);
+            System.out.println("game board: " + game.getBoard());
             ChessBoardDrawing.drawChessboard(game.getBoard(), isBlackPerspective); // Pass the board
         } else {
             ChessBoard defaultBoard = new ChessBoard();
@@ -79,9 +93,19 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
         }
     }
 
-    public void start() {
+    public void run() {
         System.out.println("\nStarting gameplay...");
-        redrawBoard();
+
+        synchronized(this) {
+            try {
+                if (game == null) {
+                    this.wait(5000);
+                }
+            } catch (InterruptedException e) {
+                System.out.println("Interrupted while waiting for game state");
+            }
+        }
+
         Scanner scanner = new Scanner(System.in);
         while (inGame) {
             System.out.print("[GAME] >>> ");
@@ -91,6 +115,7 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
                 if (processCommand(input)) break;
             } catch (ResponseException e) {
                 System.out.println("Error: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -128,17 +153,74 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
         }
 
         try {
-            ChessPosition start = parsePosition(tokens[1]);
-            ChessPosition end = parsePosition(tokens[2]);
-            ChessMove move = new ChessMove(start, end, null); // Promotion piece handling can be added
 
+            String moveInput = String.join("", Arrays.copyOfRange(tokens, 1, tokens.length));
+            ChessMove move = parseMoveInput(moveInput);
+            if (!isValidMove(move)) {
+                System.out.println("Invalid move. Either not your turn or illegal move.");
+                return;
+            }
             MakeMoveCommand command = new MakeMoveCommand(authToken, gameID, move);
             webSocketFacade.sendMessage(command);
 
             redrawBoard();
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+
             System.out.println("Invalid move format: " + e.getMessage());
         }
+
+    }
+
+    private ChessPosition parsePosition(String pos) {
+        pos = pos.toLowerCase();
+        if (pos.length() != 2) throw new IllegalArgumentException("Invalid position format");
+        int col = pos.charAt(0) - 'a' + 1;
+        int row = Character.getNumericValue(pos.charAt(1));
+        return new ChessPosition(row, col);
+    }
+
+    private boolean isValidMove(ChessMove move) {
+        try {
+            if (game.getTeamTurn() != getPlayerTeamColor()) {
+                return false;
+            }
+
+            return game.validMoves(move.getStartPosition()).contains(move);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private ChessGame.TeamColor getPlayerTeamColor() {
+        return "WHITE".equalsIgnoreCase(playerColor) ?
+                ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+    }
+
+    private ChessMove parseMoveInput(String moveStr) {
+        if (moveStr.length() < 4) throw new IllegalArgumentException("Invalid move format");
+
+        String from = moveStr.substring(0, 2).toLowerCase();
+        String to = moveStr.substring(2, 4).toLowerCase();
+        ChessPiece.PieceType promotion = null;
+
+        // Handle promotion
+        if (moveStr.length() > 4) {
+            char promoChar = moveStr.charAt(4);
+            promotion = switch(Character.toUpperCase(promoChar)) {
+                case 'Q' -> ChessPiece.PieceType.QUEEN;
+                case 'R' -> ChessPiece.PieceType.ROOK;
+                case 'B' -> ChessPiece.PieceType.BISHOP;
+                case 'N' -> ChessPiece.PieceType.KNIGHT;
+                default -> throw new IllegalArgumentException("Invalid promotion piece");
+            };
+        }
+
+        return new ChessMove(
+                parsePosition(from),
+                parsePosition(to),
+                promotion
+        );
     }
 
     private void handleLeave() throws ResponseException {
@@ -161,10 +243,4 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
         }
     }
 
-    private ChessPosition parsePosition(String pos) {
-        if (pos.length() != 2) throw new IllegalArgumentException("Invalid position format");
-        int col = pos.charAt(0) - 'a' + 1;
-        int row = Character.getNumericValue(pos.charAt(1));
-        return new ChessPosition(row, col);
-    }
 }
