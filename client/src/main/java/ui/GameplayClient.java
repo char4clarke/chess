@@ -6,8 +6,7 @@ import websocket.commands.MakeMoveCommand;
 import websocket.messages.*;
 import websocket.messages.ServerMessage;
 
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class GameplayClient implements WebSocketFacade.NotificationHandler {
@@ -84,11 +83,11 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
         if (game != null) {
             boolean isBlackPerspective = "BLACK".equalsIgnoreCase(playerColor);
             System.out.println("game board: " + game.getBoard());
-            ChessBoardDrawing.drawChessboard(game.getBoard(), isBlackPerspective); // Pass the board
+            ChessBoardDrawing.drawChessboard(game.getBoard(), isBlackPerspective, null); // Pass the board
         } else {
             ChessBoard defaultBoard = new ChessBoard();
             defaultBoard.resetBoard();
-            ChessBoardDrawing.drawChessboard(defaultBoard, false);
+            ChessBoardDrawing.drawChessboard(defaultBoard, false, null);
             System.out.println("No game state available to draw.");
         }
     }
@@ -128,7 +127,7 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
             case "leave" -> { handleLeave(); return true; }
             case "resign" -> handleResign();
             case "redraw" -> redrawBoard();
-//            case "highlight" -> highlightMoves(tokens);
+            case "highlight" -> highlightMoves(tokens);
             default -> System.out.println("Unknown command. Type 'help' for options.");
         }
         return false;
@@ -145,6 +144,38 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
               help             - Show this help message
             """);
     }
+
+    private void highlightMoves(String[] tokens) {
+        if (tokens.length != 2) {
+            System.out.println("Usage: highlight <SQUARE> (e.g., 'highlight e2')");
+            return;
+        }
+
+        try {
+            ChessPosition position = parsePosition(tokens[1]);
+            Collection<ChessMove> validMoves = game.validMoves(position);
+            Set<ChessPosition> highlightedPositions = new HashSet<>();
+
+            for (ChessMove move : validMoves) {
+                highlightedPositions.add(move.getEndPosition());
+            }
+
+            redrawBoardWithHighlights(highlightedPositions);
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid position: " + e.getMessage());
+        }
+    }
+
+    private void redrawBoardWithHighlights(Set<ChessPosition> highlights) {
+        if (game != null) {
+            boolean isBlackPerspective = "BLACK".equalsIgnoreCase(playerColor);
+            ChessBoardDrawing.drawChessboardWithHighlights(game.getBoard(), isBlackPerspective, highlights);
+        } else {
+            System.out.println("No game state available to draw.");
+        }
+    }
+
 
     private void handleMove(String[] tokens) throws ResponseException {
         if (tokens.length != 3) {
