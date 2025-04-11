@@ -52,7 +52,8 @@ public class ChessBoardDrawing {
         output.print(RESET_BG_COLOR);
     }
 
-    private static void printRowWithHighlights(PrintStream output, ChessBoard board, int dataRow, boolean isBlackPerspective, Set<ChessPosition> highlights) {
+    private static void printRowWithHighlights(PrintStream output, ChessBoard board,
+                                               int dataRow, boolean isBlackPerspective, Set<ChessPosition> highlights) {
         int displayRow = dataRow + 1;
         output.printf("%d ", displayRow);
 

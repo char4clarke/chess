@@ -45,17 +45,6 @@ public class MySqlGameDAO implements GameDAO {
         return games;
     }
 
-//    @Override
-//    public int createGame(String gameName, ChessGame game) throws DataAccessException {
-//        if (gameName == null) {
-//            throw new DataAccessException("Error: game name is null");
-//        }
-//
-//        String statement = "INSERT INTO games (gameName, stateJSON) VALUES (?, ?)";
-//        String gameJson = gson.toJson(game); // Serialize ChessGame to JSON
-//        return executeUpdate(statement, gameName, gameJson); // Pass both parameters
-//    }
-
     @Override
     public int createGame(String gameName, ChessGame game) throws DataAccessException {
         System.out.println("[MySqlGameDAO] Inserting game: " + gameName);
@@ -84,18 +73,7 @@ public class MySqlGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
-//        var statement = "SELECT * FROM games WHERE gameID=?";
-//        try (var conn = DatabaseManager.getConnection();
-//             var ps = conn.prepareStatement(statement)) {
-//            ps.setInt(1, gameID);
-//            try (var rs = ps.executeQuery()) {
-//                if (rs.next()) {
-//                    return readGame(rs);
-//                }
-//            }
-//        } catch (SQLException e) {
-//            throw new DataAccessException("Error: " + e.getMessage());
-//        }
+
         System.out.println("[MySqlGameDAO] Fetching game ID: " + gameID);
 
         try (var conn = DatabaseManager.getConnection()) {

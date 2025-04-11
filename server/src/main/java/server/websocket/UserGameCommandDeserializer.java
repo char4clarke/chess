@@ -13,9 +13,7 @@ public class UserGameCommandDeserializer implements JsonDeserializer<UserGameCom
         String typeStr = obj.get("commandType").getAsString();
         return switch (UserGameCommand.CommandType.valueOf(typeStr)) {
             case CONNECT -> context.deserialize(json, ConnectCommand.class);
-//            case MAKE_MOVE -> {}
-//            case LEAVE -> {}
-//            case RESIGN -> {}
+
             default -> throw new JsonParseException("Unknown command type: " + typeStr);
         };
     }

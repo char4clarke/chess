@@ -111,7 +111,8 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
                 @SuppressWarnings("unchecked")
                 TypeAdapter<R> delegate = (TypeAdapter<R>) labelToDelegate.get(label);
                 if (delegate == null) {
-                    throw new JsonParseException("Cannot deserialize " + baseType + " subtype named " + label + "; did you forget to register a subtype?");
+                    throw new JsonParseException("Cannot deserialize " +
+                            baseType + " subtype named " + label + "; did you forget to register a subtype?");
                 }
                 return delegate.fromJsonTree(jsonObject);
             }

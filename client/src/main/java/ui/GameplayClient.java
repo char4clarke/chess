@@ -222,7 +222,9 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
 
     private ChessPosition parsePosition(String pos) {
         pos = pos.toLowerCase();
-        if (pos.length() != 2) throw new IllegalArgumentException("Invalid position format");
+        if (pos.length() != 2) {
+            throw new IllegalArgumentException("Invalid position format");
+        }
         int col = pos.charAt(0) - 'a' + 1;
         int row = Character.getNumericValue(pos.charAt(1));
         return new ChessPosition(row, col);
@@ -246,7 +248,9 @@ public class GameplayClient implements WebSocketFacade.NotificationHandler {
     }
 
     private ChessMove parseMoveInput(String moveStr) {
-        if (moveStr.length() < 4) throw new IllegalArgumentException("Invalid move format");
+        if (moveStr.length() < 4) {
+            throw new IllegalArgumentException("Invalid move format");
+        }
 
         String from = moveStr.substring(0, 2).toLowerCase();
         String to = moveStr.substring(2, 4).toLowerCase();

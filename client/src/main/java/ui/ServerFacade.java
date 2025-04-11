@@ -136,19 +136,4 @@ public class ServerFacade {
     }
 
 
-    public void connectWebSocket(String authToken, int gameID) throws ResponseException {
-        try {
-            String wsUrl = serverUrl.replace("http", "ws") + "/ws";
-            WebSocketFacade.NotificationHandler handler = new WebSocketFacade.NotificationHandler() {
-                @Override
-                public void notify(ServerMessage notification) {
-                    System.out.println("[DEBUG] Received server message: ");
-                }
-            };
-            WebSocketFacade webSocketFacade = new WebSocketFacade(wsUrl, handler, authToken, gameID, playerColor);
-        } catch (ResponseException e) {
-            throw new ResponseException(500, "Failed to connect to WebSocket: " + e.getMessage());
-        }
-    }
-
 }
